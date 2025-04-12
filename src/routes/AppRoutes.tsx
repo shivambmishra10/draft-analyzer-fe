@@ -1,16 +1,28 @@
-import { Routes, Route, Navigate } from 'react-router-dom';
-import HomePage from '../pages/HomePage';
-import Login from '../pages/Login';
-import Signup from '../pages/SignUp';
+import { Routes, Route, Navigate } from "react-router-dom";
+import HomePage from "../pages/HomePage";
+import Login from "@/pages/Login";
+import Signup from "@/pages/SignUp";
+import ProtectedRoute from "./ProtectedRoute";
+import UploadPolicy from "@/components/UploadPolicy";
 
 const AppRoutes = () => {
-  const isAuthenticated = !!localStorage.getItem('token');
-
   return (
     <Routes>
-      <Route path="/" element={isAuthenticated ? <HomePage /> : <Navigate to="/login" />} />
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<Signup />} />
+      <Route path="/upload-policy" element={<ProtectedRoute><UploadPolicy /></ProtectedRoute>} />
+      <Route
+        path="/"
+        element={
+          <ProtectedRoute>
+            <>
+              <HomePage />
+            </>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route path="*" element={<Navigate to="/" />} />
     </Routes>
   );
 };
