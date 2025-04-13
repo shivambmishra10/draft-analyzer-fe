@@ -4,6 +4,7 @@ import Login from "@/pages/Login";
 import Signup from "@/pages/SignUp";
 import ProtectedRoute from "./ProtectedRoute";
 import UploadPolicy from "@/components/UploadPolicy";
+import Dashboard from "@/components/Dashboard";
 
 const AppRoutes = () => {
   return (
@@ -11,6 +12,7 @@ const AppRoutes = () => {
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<Signup />} />
       <Route path="/upload-policy" element={<ProtectedRoute><UploadPolicy /></ProtectedRoute>} />
+      <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
       <Route
         path="/"
         element={

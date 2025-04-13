@@ -1,8 +1,5 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import Navbar from '../components/Navbar';
-import Sidebar from '../components/Sidebar';
-import Footer from '../components/Footer';
 
 const HomePage: React.FC = () => {
   const [file, setFile] = useState<File | null>(null);
@@ -32,7 +29,6 @@ const HomePage: React.FC = () => {
     <div className="flex flex-col min-h-screen">
 
       <div className="flex flex-1">
-        <Sidebar />
 
         <main className="flex-1 p-6 bg-gray-50">
           <div className="max-w-3xl mx-auto space-y-6 bg-white p-6 rounded shadow">
@@ -69,7 +65,6 @@ const HomePage: React.FC = () => {
         </main>
       </div>
 
-      <Footer />
     </div>
   );
 };
