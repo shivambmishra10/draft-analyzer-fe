@@ -3,8 +3,8 @@ import HomePage from "../pages/HomePage";
 import Login from "@/pages/Login";
 import Signup from "@/pages/SignUp";
 import ProtectedRoute from "./ProtectedRoute";
-import UploadPolicy from "@/components/UploadPolicy";
 import Dashboard from "@/components/Dashboard";
+import UploadPolicy from "@/pages/UploadPolicy";
 
 const AppRoutes = () => {
   return (

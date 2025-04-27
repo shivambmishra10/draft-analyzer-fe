@@ -52,3 +52,14 @@ export default tseslint.config({
   },
 })
 ```
+
+run mock server
+```
+cd mock-server
+node mock-server.js
+```
+run 
+```
+npm run dev
+
+```

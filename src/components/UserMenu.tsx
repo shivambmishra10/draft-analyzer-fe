@@ -17,7 +17,7 @@ import { Button } from "@/components/ui/button";
 export function UserMenu() {
   const navigate = useNavigate();
   const logout = useAuthStore((state) => state.logout); 
-  const { email, name, avatarUrl, isAuthenticated } = useAuthStore();
+  const { name, avatarUrl, isAuthenticated } = useAuthStore();
 
   const handleLogout = () => {
     logout();
