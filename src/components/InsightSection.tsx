@@ -1,22 +1,21 @@
 import React, { useState } from 'react';
-import { ChevronUp } from 'lucide-react';
 import {
   PieChart, Pie, Cell, Tooltip,
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Legend, ResponsiveContainer
 } from 'recharts';
+import { Button, Card, Typography, Row, Col, Collapse, Space } from 'antd';
+import { UpOutlined } from '@ant-design/icons';
 
-const InsightSection = () => {
-  const [showSummary, setShowSummary] = useState(false);
-  const [showScore, setShowScore] = useState(false);
+const { Title, Paragraph, Text } = Typography;
+const { Panel } = Collapse;
 
-  const handleSummarize = () => {
-    setShowSummary(!showSummary);
-    if (showScore) setShowScore(false);
-  };
+const InsightSection: React.FC = () => {
+  const [activePanel, setActivePanel] = useState<string | string[]>([]);
 
-  const handleScore = () => {
-    setShowScore(!showScore);
-    if (showSummary) setShowSummary(false);
+  const handleToggle = (key: string) => {
+    setActivePanel((prev) =>
+      Array.isArray(prev) && prev.includes(key) ? [] : [key]
+    );
   };
 
   const pieData = [
@@ -38,124 +37,118 @@ const InsightSection = () => {
   const pieColors = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#A9A9F5'];
 
   return (
-    <section className="p-8 bg-gray-50 rounded-lg shadow-md mt-8 mx-auto w-full">
-      <h2 className="text-2xl font-bold mb-4 text-center">Get Your Document Insights</h2>
-      <p className="text-gray-600 mb-6 text-center max-w-2xl mx-auto">
+    <Card style={{ marginTop: 32 }} variant='borderless'>
+      <Title level={3} style={{ textAlign: 'center' }}>Get Your Document Insights</Title>
+      <Paragraph style={{ textAlign: 'center', maxWidth: 600, margin: '0 auto 24px' }}>
         Easily summarize and score your policy documents with just a few clicks.
-      </p>
+      </Paragraph>
 
-      <div className="flex gap-4 justify-center mb-6">
-        <button
-          onClick={handleSummarize}
-          className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-md transition"
-        >
-          Summarize
-        </button>
-        <button
-          onClick={handleScore}
-          className="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600 text-sm"
-        >
-          📊 View Scores
-        </button>
-      </div>
+      <Space direction="horizontal" style={{ justifyContent: 'center', width: '100%', marginBottom: 24 }}>
+        <Button type="primary" onClick={() => handleToggle('summary')}>Summarize</Button>
+        <Button type="default" onClick={() => handleToggle('score')}>📊 View Scores</Button>
+      </Space>
 
-      {/* Summary Section */}
-      {showSummary && (
-        <div className="bg-gray-100 border border-gray-300 rounded-md p-6">
-          <div className="flex justify-between items-center mb-4 cursor-pointer" onClick={() => setShowSummary(false)}>
-            <h3 className="text-xl font-semibold">Document Summary</h3>
-            <ChevronUp className="text-gray-500" />
-          </div>
-          <div className="text-gray-800 text-sm leading-relaxed space-y-2">
-            <ul className="list-disc list-inside">
+      <Collapse
+        activeKey={activePanel}
+        expandIconPosition="end"
+        ghost
+        accordion
+        style={{ marginBottom: 24 }}
+      >
+        {/* Summary Panel */}
+        <Panel
+          header="Document Summary"
+          key="summary"
+          extra={<UpOutlined rotate={activePanel === 'summary' ? 180 : 0} />}
+        >
+          <Paragraph>
+            <ul>
               <li>Reducing carbon emissions by 40% by 2035</li>
               <li>Implementing green building standards for all new construction</li>
               <li>Expanding public transportation networks to reduce car dependency</li>
               <li>Creating community green spaces within 10-minute walking distance of all residential areas</li>
               <li>Developing water conservation strategies and infrastructure</li>
             </ul>
-            <p>
-              The policy emphasizes community involvement in planning processes and equitable distribution of
-              environmental benefits across all neighborhoods. Implementation will occur in three phases, with the
-              initial focus on regulatory framework development, followed by infrastructure investment, and concluding
-              with monitoring and refinement.
-            </p>
-          </div>
+          </Paragraph>
+          <Paragraph>
+            The policy emphasizes community involvement in planning processes and equitable distribution of
+            environmental benefits across all neighborhoods. Implementation will occur in three phases, with the
+            initial focus on regulatory framework development, followed by infrastructure investment, and concluding
+            with monitoring and refinement.
+          </Paragraph>
+          <Space style={{ marginTop: 16 }}>
+            <Button>⬇️ Download Summary</Button>
+            <Button type="primary">💾 Save to Database</Button>
+          </Space>
+        </Panel>
 
-          <div className="flex gap-3 mt-6">
-            <button className="bg-white border border-blue-500 text-blue-600 px-4 py-2 rounded hover:bg-blue-50 text-sm">
-              ⬇️ Download Summary
-            </button>
-            <button className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 text-sm">
-              💾 Save to Database
-            </button>
-          </div>
-        </div>
-      )}
+        {/* Score Panel */}
+        <Panel
+          header="Document Score Analysis"
+          key="score"
+          extra={<UpOutlined rotate={activePanel === 'score' ? 180 : 0} />}
+        >
+          <Row gutter={[16, 16]} justify="center">
+            <Col xs={24} sm={12} md={6}>
+              <Card>
+                <Text strong style={{ fontSize: '24px', color: '#1890ff' }}>8.4</Text>
+                <Paragraph>Overall Score</Paragraph>
+              </Card>
+            </Col>
+            <Col xs={24} sm={12} md={6}>
+              <Card>
+                <Text strong style={{ fontSize: '24px', color: '#1890ff' }}>93%</Text>
+                <Paragraph>Clarity Rating</Paragraph>
+              </Card>
+            </Col>
+            <Col xs={24} sm={12} md={6}>
+              <Card>
+                <Text strong style={{ fontSize: '24px', color: '#1890ff' }}>87%</Text>
+                <Paragraph>Implementation Detail</Paragraph>
+              </Card>
+            </Col>
+            <Col xs={24} sm={12} md={6}>
+              <Card>
+                <Text strong style={{ fontSize: '24px', color: '#1890ff' }}>76%</Text>
+                <Paragraph>Stakeholder Engagement</Paragraph>
+              </Card>
+            </Col>
+          </Row>
 
-      {/* Score Section */}
-      {showScore && (
-        <div className="bg-white border border-gray-200 rounded-md p-6 w-full mt-4">
-          <div className="flex justify-between items-center mb-4 cursor-pointer" onClick={() => setShowScore(false)}>
-            <h3 className="text-xl font-semibold">Document Score Analysis</h3>
-            <ChevronUp className="w-5 h-5 text-gray-500" />
-          </div>
+          <Row gutter={[24, 24]} style={{ marginTop: 32 }}>
+            <Col xs={24} md={12}>
+              <Card title="Policy Element Scores">
+                <ResponsiveContainer width="100%" height={250}>
+                  <PieChart>
+                    <Pie data={pieData} dataKey="value" nameKey="name" outerRadius={80} label>
+                      {pieData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={pieColors[index % pieColors.length]} />
+                      ))}
+                    </Pie>
+                    <Tooltip />
+                  </PieChart>
+                </ResponsiveContainer>
+              </Card>
+            </Col>
 
-          {/* Score Metrics */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center mb-6">
-            <div className="bg-gray-100 p-4 rounded">
-              <p className="text-2xl font-bold text-blue-600">8.4</p>
-              <p className="text-sm text-gray-600">Overall Score</p>
-            </div>
-            <div className="bg-gray-100 p-4 rounded">
-              <p className="text-2xl font-bold text-blue-600">93%</p>
-              <p className="text-sm text-gray-600">Clarity Rating</p>
-            </div>
-            <div className="bg-gray-100 p-4 rounded">
-              <p className="text-2xl font-bold text-blue-600">87%</p>
-              <p className="text-sm text-gray-600">Implementation Detail</p>
-            </div>
-            <div className="bg-gray-100 p-4 rounded">
-              <p className="text-2xl font-bold text-blue-600">76%</p>
-              <p className="text-sm text-gray-600">Stakeholder Engagement</p>
-            </div>
-          </div>
-
-          {/* Charts */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Pie Chart */}
-            <div className="bg-gray-50 p-4 rounded shadow-sm">
-              <h4 className="text-md font-semibold mb-2 text-center">Policy Element Scores</h4>
-              <ResponsiveContainer width="100%" height={250}>
-                <PieChart>
-                  <Pie data={pieData} dataKey="value" nameKey="name" outerRadius={80} label>
-                    {pieData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={pieColors[index % pieColors.length]} />
-                    ))}
-                  </Pie>
-                  <Tooltip />
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
-
-            {/* Bar Chart */}
-            <div className="bg-gray-50 p-4 rounded shadow-sm">
-              <h4 className="text-md font-semibold mb-2 text-center">Performance by Category</h4>
-              <ResponsiveContainer width="100%" height={250}>
-                <BarChart data={barData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="name" />
-                  <YAxis />
-                  <Tooltip />
-                  <Legend />
-                  <Bar dataKey="score" fill="#8884d8" />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-        </div>
-      )}
-    </section>
+            <Col xs={24} md={12}>
+              <Card title="Performance by Category">
+                <ResponsiveContainer width="100%" height={250}>
+                  <BarChart data={barData}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="name" />
+                    <YAxis />
+                    <Tooltip />
+                    <Legend />
+                    <Bar dataKey="score" fill="#8884d8" />
+                  </BarChart>
+                </ResponsiveContainer>
+              </Card>
+            </Col>
+          </Row>
+        </Panel>
+      </Collapse>
+    </Card>
   );
 };
 

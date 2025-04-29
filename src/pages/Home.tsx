@@ -1,6 +1,5 @@
 import UploadSection from '../components/UploadSection';
 import InsightSection from '../components/InsightSection';
-import ActionSection from '../components/ActionSection';
 import PromptEvaluation from '@/components/PromptEvaluation';
 
 const Home = () => {
@@ -9,7 +8,6 @@ const Home = () => {
       <UploadSection />
       <InsightSection />
       <PromptEvaluation />
-      
     </div>
   );
 };
