@@ -2,7 +2,7 @@ import React from 'react';
 
 const ActionSection = () => {
   return (
-    <section className="p-8 bg-gray-50 rounded-lg shadow mt-6 mx-4 flex flex-col md:flex-row gap-8">
+    <section className="p-8 bg-gray-50 rounded-lg shadow mt-6 flex flex-col md:flex-row gap-8">
       <div className="flex-1">
         <h2 className="text-3xl font-bold mb-4">Take Action on Your Summary</h2>
         <p className="text-gray-700 mb-6">

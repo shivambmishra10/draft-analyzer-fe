@@ -2,9 +2,9 @@ import React from 'react';
 
 const Header = () => {
   return (
-    <header className="flex justify-between items-center p-4 shadow-md bg-white sticky top-0 z-10">
+    <header className="flex justify-between items-center shadow-md bg-white sticky top-0 z-10">
       <div className="flex items-center gap-2">
-        <img src="https://www.civis.vote/assets/images/navlogo.png" alt="Logo" className="h-10" />
+        <img src="https://www.civis.vote/assets/images/navlogo.png" alt="Logo" className="h-20" />
         {/* <span className="font-bold text-2xl text-blue-600">Civis</span> */}
       </div>
       <nav className="hidden md:flex gap-6 text-gray-600">

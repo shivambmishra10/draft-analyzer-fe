@@ -1,18 +1,15 @@
-import React from 'react';
 import UploadSection from '../components/UploadSection';
 import InsightSection from '../components/InsightSection';
-import PreviewSection from '../components/PreviewSection';
 import ActionSection from '../components/ActionSection';
-import Footer from '../components/Footer';
+import PromptEvaluation from '@/components/PromptEvaluation';
 
 const Home = () => {
   return (
     <div className="space-y-12">
       <UploadSection />
-      <PreviewSection />
       <InsightSection />
-      <ActionSection />
-      <Footer />
+      <PromptEvaluation />
+      
     </div>
   );
 };
