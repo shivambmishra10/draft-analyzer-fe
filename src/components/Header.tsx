@@ -19,6 +19,53 @@ const userMenuItems = [
   },
 ];
 
+const menuItems = [
+  {
+    key: "home",
+    label: (
+      <a
+        href="/"
+        className="text-gray-700 hover:text-blue-600 font-medium px-4"
+      >
+        Home
+      </a>
+    ),
+  },
+  {
+    key: "analyze",
+    label: (
+      <a
+        href="/analyze"
+        className="text-gray-700 hover:text-blue-600 font-medium px-4"
+      >
+        Policy Analysis
+      </a>
+    ),
+  },
+  {
+    key: "prompt",
+    label: (
+      <a
+        href="/prompt"
+        className="text-gray-700 hover:text-blue-600 font-medium px-4"
+      >
+        Prompt Dashboard
+      </a>
+    ),
+  },
+  {
+    key: "history",
+    label: (
+      <a
+        href="/history"
+        className="text-gray-700 hover:text-blue-600 font-medium px-4"
+      >
+        History
+      </a>
+    ),
+  },
+];
+
 const Header = () => {
   return (
     <AntHeader className="!bg-white !px-0 shadow-md sticky top-0 z-10">
@@ -35,17 +82,9 @@ const Header = () => {
         {/* Navigation Menu */}
         <Menu
           mode="horizontal"
-          className="hidden md:flex border-b-0 flex-1 justify-center"
+          className="hidden md:flex border-b-0 flex-1 justify-center bg-transparent"
           style={{ minWidth: 0 }}
-          items={[
-            { key: "home", label: <a href="/">Home</a> },
-            { key: "upload", label: <a href="/upload">Upload Document</a> },
-            { key: "history", label: <a href="/my-documents">My Documents</a> },
-            {
-              key: "frameworks",
-              label: <a href="/frameworks">Assessment Frameworks</a>,
-            }
-          ]}
+          items={menuItems}
         />
 
         {/* User Dropdown */}

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card, Typography, Tag, Button, Space } from 'antd';
+import { Card, Typography, Tag, Space } from 'antd';
 
 const { Title, Paragraph } = Typography;
 
@@ -41,6 +41,12 @@ const PromptEvaluation: React.FC = () => {
   return (
     <Card style={{ marginTop: 32 }} variant='borderless'>
         <Title level={3} style={{ textAlign: 'center' }}>Evaluation by Prompts</Title>
+        <Paragraph
+        type="secondary"
+        style={{ textAlign: "center", margin: "0 auto 24px" }}
+      >
+        View the answers and score for your uploaded policy documents using the predefined question.
+      </Paragraph>
       <Space direction="vertical" size="large" style={{ width: '100%' }}>
         {evaluations.map((evalItem, index) => (
           <Card
@@ -57,13 +63,6 @@ const PromptEvaluation: React.FC = () => {
             </Tag>
           </Card>
         ))}
-
-        <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem', marginTop: '16px' }}>
-          <Button type="primary" ghost>
-            Download Results
-          </Button>
-          <Button type="primary">Save to Database</Button>
-        </div>
       </Space>
     </Card>
   );

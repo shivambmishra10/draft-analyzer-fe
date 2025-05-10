@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { UploadCloud } from "lucide-react";
-import { Upload, Progress, Typography, Card, Button } from "antd";
+import { Upload, Progress, Typography, Card, Button, Space } from "antd";
 import type { UploadProps } from "antd";
+import { CloudUploadOutlined } from "@ant-design/icons";
+import { useSessionStore } from "@/store/sessionStore";
 
 const { Dragger } = Upload;
 const { Title, Paragraph, Text } = Typography;
@@ -10,9 +11,11 @@ export default function UploadSection() {
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
+  const setSummaryRequested = useSessionStore((state) => state.setSummaryRequested);
 
   const simulateUpload = (file: File) => {
     setIsUploading(true);
+    setSummaryRequested(false);
     setUploadProgress(0);
 
     const interval = setInterval(() => {
@@ -25,6 +28,10 @@ export default function UploadSection() {
         return prev + 10;
       });
     }, 200);
+  };
+
+  const handleSummarizeClick = () => {
+    setSummaryRequested(true);
   };
 
   const props: UploadProps = {
@@ -51,7 +58,7 @@ export default function UploadSection() {
       </div>
 
       <Dragger {...props} style={{ padding: 16, width: "100%" }}>
-        <UploadCloud className="w-10 h-10 text-gray-400 mb-2 mx-auto" />
+        <CloudUploadOutlined style={{ fontSize: '2.5rem', color: '#9ca3af', marginBottom: '0.5rem' }} />
         <p className="ant-upload-text">Click or drag file to this area to upload</p>
         <p className="ant-upload-hint text-gray-500 text-sm">
           Supported formats: .pdf, .doc, .docx, .txt
@@ -62,20 +69,6 @@ export default function UploadSection() {
         <div className="text-center mt-4">
           <Text strong>Uploaded File:</Text>{" "}
           <Text code>{uploadedFile.name}</Text>
-
-          {!isUploading && (
-            <div className="mt-2">
-              <Button
-                type="primary"
-                onClick={() => {
-                  setUploadedFile(null);
-                  setUploadProgress(0);
-                }}
-              >
-                Upload Different File
-              </Button>
-            </div>
-          )}
         </div>
       )}
 
@@ -83,6 +76,14 @@ export default function UploadSection() {
         <div className="w-full mt-4">
           <Progress percent={uploadProgress} status="active" />
         </div>
+      )}
+
+      {!isUploading && uploadedFile && (
+        <Space style={{ marginTop: 24 }}>
+          <Button type="primary" onClick={handleSummarizeClick}>
+            Summarize
+          </Button>
+        </Space>
       )}
     </Card>
   );
