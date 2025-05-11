@@ -1,4 +1,3 @@
-```
 run mock server
 ```
 cd mock-server
