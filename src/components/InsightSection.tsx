@@ -2,14 +2,14 @@ import React, { useEffect, useState } from "react";
 import { Card, Typography, Button, Spin, message, Space } from "antd";
 import { CheckCircleTwoTone, FileTextOutlined, DownloadOutlined } from "@ant-design/icons";
 import { fetchSummary } from "@/services/documentService";
-import { useSessionStore } from "@/store/sessionStore";
+import { useDocumentStore } from "@/store/documentStore";
 import { SummaryResponse } from "@/model/documentModels";
 
 const { Title, Paragraph } = Typography;
 
 const InsightSection: React.FC = () => {
-  const fileName = useSessionStore((state) => state.uploadedFileName);
-  const summaryRequested = useSessionStore((state) => state.summaryRequested);
+  const fileName = useDocumentStore((state) => state.uploadedFileName);
+  const summaryRequested = useDocumentStore((state) => state.summaryRequested);
 
   const [loading, setLoading] = useState(false);
   const [summaryData, setSummaryData] = useState<SummaryResponse | null>(null);

@@ -12,7 +12,7 @@ import {
 import type { UploadProps } from "antd";
 import { CloudUploadOutlined } from "@ant-design/icons";
 import { uploadDocument } from "@/services/documentService";
-import { useSessionStore } from "@/store/sessionStore";
+import { useDocumentStore } from "@/store/documentStore";
 
 const { Dragger } = Upload;
 const { Title, Paragraph, Text } = Typography;
@@ -24,10 +24,10 @@ export default function UploadSection() {
   const [fileName, setFileName] = useState<string | null>(null);
   const [showSummarize, setShowSummarize] = useState(false);
 
-  const setSummaryRequested = useSessionStore(
+  const setSummaryRequested = useDocumentStore(
     (state) => state.setSummaryRequested
   );
-  const setUploadedFileName = useSessionStore(
+  const setUploadedFileName = useDocumentStore(
     (state) => state.setUploadedFileName
   );
 

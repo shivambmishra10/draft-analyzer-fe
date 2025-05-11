@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 
-interface SessionState {
+interface DocumentState {
   fileUploaded: boolean;
   summaryRequested: boolean;
   uploadedFileName?: string;
@@ -9,7 +9,7 @@ interface SessionState {
   setSummaryRequested: (requested: boolean) => void;
 }
 
-export const useSessionStore = create<SessionState>((set) => ({
+export const useDocumentStore = create<DocumentState>((set) => ({
   fileUploaded: false,
   summaryRequested: false,
   setFileUploaded: (uploaded) => set({ fileUploaded: uploaded }),

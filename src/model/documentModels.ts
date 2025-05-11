@@ -11,5 +11,7 @@ export interface SummaryRequest {
 
 // Summarize response (used in InsightSection)
 export interface SummaryResponse {
-  summary: string;
+  summaryPoints: string[];
+  summaryText: string;
 }
+

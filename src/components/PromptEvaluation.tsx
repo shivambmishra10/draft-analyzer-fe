@@ -1,72 +1,83 @@
-import React from 'react';
-import { Card, Typography, Tag, Space } from 'antd';
+import React, { useEffect, useState } from "react";
+import { Card, Typography, Tag, Space, Spin, message } from "antd";
+import { EvaluationItem } from "@/model/EvaluationModels";
+import { fetchPromptEvaluations } from "@/services/documentService";
+import { useDocumentStore } from "@/store/documentStore";
 
 const { Title, Paragraph } = Typography;
 
-const evaluations = [
-  {
-    question: 'What are the main policy objectives?',
-    answer:
-      'The main objectives are carbon emission reduction, green building implementation, public transit expansion, community green space creation, and water conservation.',
-    score: 9.5,
-  },
-  {
-    question: 'How does this policy address equity concerns?',
-    answer:
-      'The policy explicitly addresses equity through mandating equal distribution of environmental benefits across neighborhoods and requiring community involvement in planning processes, though specifics on implementation are somewhat limited.',
-    score: 7.8,
-  },
-  {
-    question: 'What is the implementation timeline?',
-    answer:
-      'Implementation occurs in three phases: regulatory framework development (years 1-2), infrastructure investment (years 3-7), and monitoring/refinement (years 8-10).',
-    score: 9.0,
-  },
-  {
-    question: 'What funding mechanisms are proposed?',
-    answer:
-      'The document lacks clear funding mechanisms beyond mentioning public-private partnerships and potential federal grants, with no specific budget allocations or revenue sources identified.',
-    score: 5.2,
-  },
-];
-
-// Function to determine tag color based on score
 const getScoreTagColor = (score: number) => {
-  if (score >= 8) return 'green';
-  if (score >= 6) return 'orange';
-  return 'red';
+  if (score >= 8) return "green";
+  if (score >= 6) return "orange";
+  return "red";
 };
 
 const PromptEvaluation: React.FC = () => {
+  const fileName = useDocumentStore((state) => state.uploadedFileName);
+  const [evaluations, setEvaluations] = useState<EvaluationItem[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      if (!fileName) return;
+      setLoading(true);
+      try {
+        const data = await fetchPromptEvaluations({ fileName });
+        setEvaluations(data.evaluations);
+      } catch (err) {
+        message.error("Failed to fetch evaluations.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [fileName]);
+
   return (
-    <Card style={{ marginTop: 32 }} variant='borderless'>
-        <Title level={3} style={{ textAlign: 'center' }}>Evaluation by Prompts</Title>
-        <Paragraph
+    <Card style={{ marginTop: 32 }} variant="borderless">
+      <Title level={3} style={{ textAlign: "center" }}>
+        Evaluation by Prompts
+      </Title>
+      <Paragraph
         type="secondary"
         style={{ textAlign: "center", margin: "0 auto 24px" }}
       >
-        View the answers and score for your uploaded policy documents using the predefined question.
+        View the answers and score for your uploaded policy documents using the
+        predefined question.
       </Paragraph>
-      <Space direction="vertical" size="large" style={{ width: '100%' }}>
-        {evaluations.map((evalItem, index) => (
-          <Card
-            type="inner"
-            key={index}
-            style={{ backgroundColor: '#fafafa', borderLeft: '4px solid #1890ff' }}
-          >
-            <Paragraph strong style={{ color: '#1890ff', marginBottom: 4 }}>
-              {evalItem.question}
-            </Paragraph>
-            <Paragraph>{evalItem.answer}</Paragraph>
-            <Tag color={getScoreTagColor(evalItem.score)} style={{ fontSize: '14px' }}>
-              {evalItem.score}/10
-            </Tag>
-          </Card>
-        ))}
-      </Space>
+
+      {loading ? (
+        <div className="flex justify-center py-8">
+          <Spin tip="Loading evaluations..." size="large" />
+        </div>
+      ) : (
+        <Space direction="vertical" size="large" style={{ width: "100%" }}>
+          {evaluations.map((evalItem, index) => (
+            <Card
+              type="inner"
+              key={index}
+              style={{
+                backgroundColor: "#fafafa",
+                borderLeft: "4px solid #1890ff",
+              }}
+            >
+              <Paragraph strong style={{ color: "#1890ff", marginBottom: 4 }}>
+                {evalItem.question}
+              </Paragraph>
+              <Paragraph>{evalItem.answer}</Paragraph>
+              <Tag
+                color={getScoreTagColor(evalItem.score)}
+                style={{ fontSize: "14px" }}
+              >
+                {evalItem.score}/10
+              </Tag>
+            </Card>
+          ))}
+        </Space>
+      )}
     </Card>
   );
 };
 
 export default PromptEvaluation;
-

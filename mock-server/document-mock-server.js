@@ -53,6 +53,74 @@ app.post('/summarize', (req, res) => {
   }, 2000); // 2 sec delay
 });
 
+app.post('/evaluations', (req, res) => {
+  const { fileName } = req.body;
+
+  // Simulate delay
+  setTimeout(() => {
+    if (!fileName || fileName === "invalid.doc") {
+      return res.status(400).json({ error: "Invalid or missing file name" });
+    }
+
+    res.json({
+      evaluations: [
+        {
+          question: 'What are the main policy objectives?',
+          answer: 'Carbon reduction, green buildings, public transit, green space, and water conservation.',
+          score: 9.5,
+        },
+        {
+          question: 'How does this policy address equity concerns?',
+          answer: 'Focus on equitable benefit distribution and community involvement.',
+          score: 7.8,
+        },
+        {
+          question: 'What is the implementation timeline?',
+          answer: 'Phased: regulation (1–2), investment (3–7), monitoring (8–10).',
+          score: 9.0,
+        },
+        {
+          question: 'What funding mechanisms are proposed?',
+          answer: 'Public-private partnerships and federal grants are mentioned, but lacking detail.',
+          score: 5.2,
+        },
+      ],
+    });
+  }, 1500);
+});
+
+app.post('/score', (req, res) => {
+  const { fileName } = req.body;
+
+  setTimeout(() => {
+    if (!fileName) {
+      return res.status(400).json({ error: 'Missing file name' });
+    }
+
+    res.json({
+      overallScore: "8.4",
+      clarityRating: "93%",
+      implementationDetail: "87%",
+      stakeholderEngagement: "76%",
+      policyElementScores: [
+        { name: "Objectives", value: 25 },
+        { name: "Implementation", value: 20 },
+        { name: "Clarity", value: 20 },
+        { name: "Equity", value: 15 },
+        { name: "Funding", value: 20 },
+      ],
+      performanceByCategory: [
+        { name: "Environmental", score: 88 },
+        { name: "Economic", score: 65 },
+        { name: "Social", score: 78 },
+        { name: "Governance", score: 80 },
+        { name: "Technology", score: 70 },
+      ],
+    });
+  }, 1500);
+});
+
+
 app.listen(PORT, () => {
   console.log(`✅ Mock server running at http://localhost:${PORT}`);
 });
