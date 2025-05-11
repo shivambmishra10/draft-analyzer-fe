@@ -1,7 +1,17 @@
 import { useState } from "react";
-import { Upload, Progress, Typography, Card, Button, Space } from "antd";
+import {
+  Upload,
+  Progress,
+  Typography,
+  Card,
+  Button,
+  Space,
+  Modal,
+  message,
+} from "antd";
 import type { UploadProps } from "antd";
 import { CloudUploadOutlined } from "@ant-design/icons";
+import { uploadDocument } from "@/services/documentService";
 import { useSessionStore } from "@/store/sessionStore";
 
 const { Dragger } = Upload;
@@ -9,37 +19,65 @@ const { Title, Paragraph, Text } = Typography;
 
 export default function UploadSection() {
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
-  const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
-  const setSummaryRequested = useSessionStore((state) => state.setSummaryRequested);
+  const [isUploading, setIsUploading] = useState(false);
+  const [fileName, setFileName] = useState<string | null>(null);
+  const [showSummarize, setShowSummarize] = useState(false);
 
-  const simulateUpload = (file: File) => {
+  const setSummaryRequested = useSessionStore(
+    (state) => state.setSummaryRequested
+  );
+  const setUploadedFileName = useSessionStore(
+    (state) => state.setUploadedFileName
+  );
+
+  const handleUpload = async (file: File) => {
     setIsUploading(true);
-    setSummaryRequested(false);
     setUploadProgress(0);
+    setSummaryRequested(false);
 
-    const interval = setInterval(() => {
-      setUploadProgress((prev) => {
-        if (prev >= 100) {
-          clearInterval(interval);
-          setIsUploading(false);
-          return 100;
-        }
-        return prev + 10;
-      });
-    }, 200);
+    try {
+      const res = await uploadDocument(file);
+      setFileName(res.fileName);
+      setUploadedFileName(res.fileName);
+
+      if (res.warning) {
+        Modal.confirm({
+          title: "Warning",
+          content: res.warning + " Do you want to continue?",
+          onOk: () => setShowSummarize(true),
+          onCancel: () => resetUpload(),
+        });
+      } else {
+        setShowSummarize(true);
+      }
+    } catch (err) {
+      message.error("Upload failed.");
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   const handleSummarizeClick = () => {
-    setSummaryRequested(true);
+    if (fileName) {
+      setSummaryRequested(true);
+    }
+  };
+
+  const resetUpload = () => {
+    setUploadedFile(null);
+    setFileName(null);
+    setShowSummarize(false);
+    setUploadProgress(0);
+    setSummaryRequested(false);
   };
 
   const props: UploadProps = {
     multiple: false,
     beforeUpload: (file) => {
       setUploadedFile(file);
-      simulateUpload(file);
-      return false; // prevent auto-upload
+      handleUpload(file);
+      return false;
     },
     showUploadList: false,
     accept: ".pdf,.doc,.docx,.txt",
@@ -48,18 +86,35 @@ export default function UploadSection() {
   return (
     <Card
       className="shadow-md rounded-lg mb-8"
-      bodyStyle={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "1.5rem" }}
+      styles={{
+        body: {
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          gap: "1.5rem",
+        },
+      }}
     >
       <div className="text-center">
-        <Title level={3} style={{ margin: 0, color: "#1f2937" }}>Document Summarizer</Title>
+        <Title level={3} style={{ margin: 0, color: "#1f2937" }}>
+          Document Summarizer
+        </Title>
         <Paragraph type="secondary">
           Drag and drop your policy or document file here, or click to browse.
         </Paragraph>
       </div>
 
       <Dragger {...props} style={{ padding: 16, width: "100%" }}>
-        <CloudUploadOutlined style={{ fontSize: '2.5rem', color: '#9ca3af', marginBottom: '0.5rem' }} />
-        <p className="ant-upload-text">Click or drag file to this area to upload</p>
+        <CloudUploadOutlined
+          style={{
+            fontSize: "2.5rem",
+            color: "#9ca3af",
+            marginBottom: "0.5rem",
+          }}
+        />
+        <p className="ant-upload-text">
+          Click or drag file to this area to upload
+        </p>
         <p className="ant-upload-hint text-gray-500 text-sm">
           Supported formats: .pdf, .doc, .docx, .txt
         </p>
@@ -78,7 +133,7 @@ export default function UploadSection() {
         </div>
       )}
 
-      {!isUploading && uploadedFile && (
+      {!isUploading && uploadedFile && showSummarize && (
         <Space style={{ marginTop: 24 }}>
           <Button type="primary" onClick={handleSummarizeClick}>
             Summarize
