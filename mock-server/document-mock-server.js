@@ -35,9 +35,9 @@ app.post('/summarize', (req, res) => {
   if (!fileName) return res.status(400).json({ error: "fileName is required" });
 
   setTimeout(() => {
-    if (Math.random() < 0.2) {
-      return res.status(500).json({ error: "Summarization failed. Try again later." });
-    }
+    // if (Math.random() < 0.2) {
+    //   return res.status(500).json({ error: "Summarization failed. Try again later." });
+    // }
 
     res.json({
       summaryPoints: [

@@ -8,6 +8,7 @@ import {
   Space,
   Modal,
   message,
+  Select,
 } from "antd";
 import type { UploadProps } from "antd";
 import { CloudUploadOutlined } from "@ant-design/icons";
@@ -16,6 +17,9 @@ import { useDocumentStore } from "@/store/documentStore";
 
 const { Dragger } = Upload;
 const { Title, Paragraph, Text } = Typography;
+const { Option } = Select;
+
+const DOCUMENT_TYPES = ["Policy", "Report", "Act", "Guideline", "Other"];
 
 export default function UploadSection() {
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
@@ -23,6 +27,7 @@ export default function UploadSection() {
   const [isUploading, setIsUploading] = useState(false);
   const [fileName, setFileName] = useState<string | null>(null);
   const [showSummarize, setShowSummarize] = useState(false);
+  const [selectedDocType, setSelectedDocType] = useState<string | null>(null);
 
   const setSummaryRequested = useDocumentStore(
     (state) => state.setSummaryRequested
@@ -35,6 +40,7 @@ export default function UploadSection() {
     setIsUploading(true);
     setUploadProgress(0);
     setSummaryRequested(false);
+    setSelectedDocType(null);
 
     try {
       const res = await uploadDocument(file);
@@ -59,7 +65,8 @@ export default function UploadSection() {
   };
 
   const handleSummarizeClick = () => {
-    if (fileName) {
+    if (fileName && selectedDocType) {
+      setSelectedDocType(selectedDocType);
       setSummaryRequested(true);
     }
   };
@@ -69,6 +76,7 @@ export default function UploadSection() {
     setFileName(null);
     setShowSummarize(false);
     setUploadProgress(0);
+    setSelectedDocType(null);
     setSummaryRequested(false);
   };
 
@@ -134,11 +142,33 @@ export default function UploadSection() {
       )}
 
       {!isUploading && uploadedFile && showSummarize && (
-        <Space style={{ marginTop: 24 }}>
-          <Button type="primary" onClick={handleSummarizeClick}>
-            Summarize
-          </Button>
-        </Space>
+        <>
+          <div className="w-full max-w-sm mt-4">
+            <Text strong>Select Document Type:</Text>
+            <Select
+              placeholder="Choose document type"
+              style={{ width: "100%", marginTop: 8 }}
+              onChange={(value) => setSelectedDocType(value)}
+              value={selectedDocType}
+            >
+              {DOCUMENT_TYPES.map((type) => (
+                <Option key={type} value={type}>
+                  {type}
+                </Option>
+              ))}
+            </Select>
+          </div>
+
+          <Space style={{ marginTop: 24 }}>
+            <Button
+              type="primary"
+              onClick={handleSummarizeClick}
+              disabled={!selectedDocType}
+            >
+              Summarize
+            </Button>
+          </Space>
+        </>
       )}
     </Card>
   );

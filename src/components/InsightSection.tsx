@@ -16,7 +16,7 @@ import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 import { fetchSummary } from "@/services/documentService";
 import { useDocumentStore } from "@/store/documentStore";
-import { SummaryResponse } from "@/model/documentModels";
+import { SummaryResponse } from "@/model/DocumentModels";
 
 const { Title, Paragraph } = Typography;
 

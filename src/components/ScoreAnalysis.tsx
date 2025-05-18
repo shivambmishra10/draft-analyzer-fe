@@ -105,7 +105,7 @@ const ScoreAnalysis: React.FC = () => {
                   outerRadius={80}
                   label
                 >
-                  {data.policyElementScores.map((entry, index) => (
+                  {data.policyElementScores.map((_, index) => (
                     <Cell
                       key={`cell-${index}`}
                       fill={pieColors[index % pieColors.length]}

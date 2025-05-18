@@ -1,5 +1,5 @@
 import axios from "axios";
-import { UploadResponse, SummaryRequest, SummaryResponse } from "@/model/documentModels";
+import { UploadResponse, SummaryRequest, SummaryResponse } from "@/model/DocumentModels";
 import { EvaluationResponse, EvaluationRequest } from "@/model/EvaluationModels";
 import { ScoreAnalysisRequest, ScoreAnalysisResponse } from "@/model/ScoreAnalysisModels";
 
