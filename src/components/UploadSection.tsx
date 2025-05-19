@@ -14,6 +14,7 @@ import type { UploadProps } from "antd";
 import { CloudUploadOutlined } from "@ant-design/icons";
 import { uploadDocument } from "@/services/documentService";
 import { useDocumentStore } from "@/store/documentStore";
+import AssessmentModal from "@/components/AssessmentModal";
 
 const { Dragger } = Upload;
 const { Title, Paragraph, Text } = Typography;
@@ -28,6 +29,7 @@ export default function UploadSection() {
   const [fileName, setFileName] = useState<string | null>(null);
   const [showSummarize, setShowSummarize] = useState(false);
   const [selectedDocType, setSelectedDocType] = useState<string | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const setSummaryRequested = useDocumentStore(
     (state) => state.setSummaryRequested
@@ -66,8 +68,16 @@ export default function UploadSection() {
 
   const handleSummarizeClick = () => {
     if (fileName && selectedDocType) {
-      setSelectedDocType(selectedDocType);
-      setSummaryRequested(true);
+      setIsModalOpen(true); // Open modal first
+    }
+  };
+
+  const proceedWithSummarization = () => {
+    setSummaryRequested(true);
+    setIsModalOpen(false);
+    const summarySection = document.getElementById("summary-section");
+    if (summarySection) {
+      summarySection.scrollIntoView({ behavior: "smooth" });
     }
   };
 
@@ -170,6 +180,14 @@ export default function UploadSection() {
           </Space>
         </>
       )}
+
+      {/* Modal showing assessment framework */}
+      <AssessmentModal
+        visible={isModalOpen}
+        onClose={proceedWithSummarization}
+        documentName={uploadedFile?.name || ""}
+        documentType={selectedDocType || ""}
+      />
     </Card>
   );
 }
