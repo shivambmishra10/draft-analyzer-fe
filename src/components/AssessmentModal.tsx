@@ -1,7 +1,5 @@
-import { Modal, Typography } from "antd";
+import { Modal } from "antd";
 import AssessmentFramework from "./AssessmentFramework";
-
-const { Title, Text } = Typography;
 
 interface AssessmentModalProps {
   visible: boolean;
@@ -109,7 +107,6 @@ const assessmentData = [
   },
 ];
 
-
 export default function AssessmentModal({
   visible,
   onClose,
@@ -121,15 +118,35 @@ export default function AssessmentModal({
       open={visible}
       onCancel={onClose}
       footer={null}
-      title="Assessment Framework"
-      width={800}
-      bodyStyle={{ maxHeight: "70vh", overflowY: "auto", paddingRight: "1rem" }}
+      title={null}
+      width="calc(100vw - 40px)"
+      style={{ top: 20 }}
+      bodyStyle={{
+        maxHeight: "calc(100vh - 100px)",
+        overflowY: "auto",
+        paddingRight: "1rem",
+      }}
     >
       <div className="mb-4">
-        <Title level={5}>Document Name: <Text code>{documentName}</Text></Title>
-        <Title level={5}>Document Type: <Text code>{documentType}</Text></Title>
+        {/* Header Box */}
+        <div className="bg-blue-100 text-blue-700 text-xl font-bold rounded-md px-6 py-3 text-center mb-6 shadow-sm">
+          Assessment Framework
+        </div>
+
+        {/* Document Info */}
+        <div className="flex flex-wrap gap-4 items-center justify-center text-sm mb-4">
+          <span>
+            <span className="text-gray-600">Document Name:</span>{" "}
+            <span className="text-purple-600 font-medium">{documentName}</span>
+          </span>
+          <span>
+            <span className="text-gray-600">Document Type:</span>{" "}
+            <span className="text-green-600 font-medium">{documentType}</span>
+          </span>
+        </div>
       </div>
 
+      {/* Assessment Content */}
       {assessmentData.map((item, index) => (
         <AssessmentFramework key={index} data={item} index={index + 1} />
       ))}
