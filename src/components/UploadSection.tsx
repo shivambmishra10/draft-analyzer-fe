@@ -1,26 +1,14 @@
 import { useState } from "react";
-import {
-  Upload,
-  Progress,
-  Typography,
-  Card,
-  Button,
-  Space,
-  Modal,
-  message,
-  Select,
-} from "antd";
+import { Upload, Progress, Typography, Card, Button, Modal, message } from "antd";
 import type { UploadProps } from "antd";
 import { CloudUploadOutlined } from "@ant-design/icons";
 import { uploadDocument } from "@/services/documentService";
 import { useDocumentStore } from "@/store/documentStore";
 import AssessmentModal from "@/components/AssessmentModal";
+import DocumentTypeSelection from "@/components/DocumentTypeSelection";
 
-const { Dragger } = Upload;
 const { Title, Paragraph, Text } = Typography;
-const { Option } = Select;
-
-const DOCUMENT_TYPES = ["Policy", "Report", "Act", "Guideline", "Other"];
+const { Dragger } = Upload;
 
 export default function UploadSection() {
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
@@ -30,37 +18,27 @@ export default function UploadSection() {
   const [showSummarize, setShowSummarize] = useState(false);
   const [selectedDocType, setSelectedDocType] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const setSummaryRequested = useDocumentStore(
-    (state) => state.setSummaryRequested
-  );
-  const setUploadedFileName = useDocumentStore(
-    (state) => state.setUploadedFileName
-  );
+  const setSummaryRequested = useDocumentStore((state) => state.setSummaryRequested);
+  const setUploadedFileName = useDocumentStore((state) => state.setUploadedFileName);
 
   const handleUpload = async (file: File) => {
     setIsUploading(true);
     setUploadProgress(0);
     setSummaryRequested(false);
     setSelectedDocType(null);
+    setError(null);
 
     try {
       const res = await uploadDocument(file);
       setFileName(res.fileName);
       setUploadedFileName(res.fileName);
-
-      if (res.warning) {
-        Modal.confirm({
-          title: "Warning",
-          content: res.warning + " Do you want to continue?",
-          onOk: () => setShowSummarize(true),
-          onCancel: () => resetUpload(),
-        });
-      } else {
-        setShowSummarize(true);
-      }
+      setShowSummarize(true);
     } catch (err) {
-      message.error("Upload failed.");
+      const errorMessage = err instanceof Error ? err.message : 'Upload failed';
+      setError(errorMessage);
+      message.error(errorMessage);
     } finally {
       setIsUploading(false);
     }
@@ -68,16 +46,20 @@ export default function UploadSection() {
 
   const handleSummarizeClick = () => {
     if (fileName && selectedDocType) {
-      setIsModalOpen(true); // Open modal first
+      setIsModalOpen(true);
+    } else {
+      message.warning('Please select a document type first');
     }
   };
 
   const proceedWithSummarization = () => {
-    setSummaryRequested(true);
-    setIsModalOpen(false);
-    const summarySection = document.getElementById("summary-section");
-    if (summarySection) {
-      summarySection.scrollIntoView({ behavior: "smooth" });
+    if (selectedDocType) {
+      setSummaryRequested(true);
+      setIsModalOpen(false);
+      const summarySection = document.getElementById("summary-section");
+      if (summarySection) {
+        summarySection.scrollIntoView({ behavior: "smooth" });
+      }
     }
   };
 
@@ -88,6 +70,7 @@ export default function UploadSection() {
     setUploadProgress(0);
     setSelectedDocType(null);
     setSummaryRequested(false);
+    setError(null);
   };
 
   const props: UploadProps = {
@@ -102,23 +85,13 @@ export default function UploadSection() {
   };
 
   return (
-    <Card
-      className="shadow-md rounded-lg mb-8"
-      styles={{
-        body: {
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          gap: "1.5rem",
-        },
-      }}
-    >
+    <Card className="shadow-md rounded-lg mb-8">
       <div className="text-center">
         <Title level={3} style={{ margin: 0, color: "#1f2937" }}>
-          Document Summarizer
+          Document Analyzer
         </Title>
         <Paragraph type="secondary">
-          Drag and drop your policy or document file here, or click to browse.
+          Upload your document and select its type to begin analysis
         </Paragraph>
       </div>
 
@@ -130,9 +103,7 @@ export default function UploadSection() {
             marginBottom: "0.5rem",
           }}
         />
-        <p className="ant-upload-text">
-          Click or drag file to this area to upload
-        </p>
+        <p className="ant-upload-text">Click or drag file to this area to upload</p>
         <p className="ant-upload-hint text-gray-500 text-sm">
           Supported formats: .pdf, .doc, .docx, .txt
         </p>
@@ -151,37 +122,32 @@ export default function UploadSection() {
         </div>
       )}
 
-      {!isUploading && uploadedFile && showSummarize && (
-        <>
-          <div className="w-full max-w-sm mt-4">
-            <Text strong>Select Document Type:</Text>
-            <Select
-              placeholder="Choose document type"
-              style={{ width: "100%", marginTop: 8 }}
-              onChange={(value) => setSelectedDocType(value)}
-              value={selectedDocType}
-            >
-              {DOCUMENT_TYPES.map((type) => (
-                <Option key={type} value={type}>
-                  {type}
-                </Option>
-              ))}
-            </Select>
-          </div>
-
-          <Space style={{ marginTop: 24 }}>
-            <Button
-              type="primary"
-              onClick={handleSummarizeClick}
-              disabled={!selectedDocType}
-            >
-              Summarize
-            </Button>
-          </Space>
-        </>
+      {error && (
+        <div className="text-red-500 mt-4">
+          <Text type="danger">{error}</Text>
+        </div>
       )}
 
-      {/* Modal showing assessment framework */}
+      {!isUploading && uploadedFile && showSummarize && (
+        <div className="w-full mt-4">
+          <DocumentTypeSelection
+            onTypeSelect={setSelectedDocType}
+            disabled={isUploading}
+          />
+          {selectedDocType && (
+            <div className="text-center mt-4">
+              <Button
+                type="primary"
+                onClick={handleSummarizeClick}
+                size="large"
+              >
+                Proceed with Analysis
+              </Button>
+            </div>
+          )}
+        </div>
+      )}
+
       <AssessmentModal
         visible={isModalOpen}
         onClose={proceedWithSummarization}

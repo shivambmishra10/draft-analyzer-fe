@@ -1,9 +1,24 @@
 const express = require('express');
 const cors = require('cors');
+const multer = require('multer');
+const path = require('path');
 const app = express();
+const { documentTypes, assessmentPrompts } = require('./document-types');
 
 app.use(cors());
 app.use(express.json());
+
+// Configure multer for file upload
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, path.join(__dirname, 'uploads'))
+  },
+  filename: function (req, file, cb) {
+    cb(null, file.originalname)
+  }
+});
+
+const upload = multer({ storage: storage });
 
 // Mock user database
 const mockUsers = [
@@ -94,6 +109,32 @@ app.get('/api/assessments', (req, res) => {
     res.json(assessments);
 });
 
+// Document type endpoints
+app.get('/api/document-types', (req, res) => {
+  res.json(documentTypes);
+});
+
+app.get('/api/document-types/:typeId/assessments', (req, res) => {
+  const { typeId } = req.params;
+  const typeAssessments = assessmentPrompts[typeId] || [];
+  res.json(typeAssessments);
+});
+
+// Get prompts for a specific assessment
+app.get('/api/assessments/:assessmentId/prompts', (req, res) => {
+  const { assessmentId } = req.params;
+  let prompts = [];
+  
+  // Search through all document types for the assessment
+  Object.values(assessmentPrompts).forEach(assessments => {
+    const assessment = assessments.find(a => a.id === parseInt(assessmentId));
+    if (assessment) {
+      prompts = assessment.prompts;
+    }
+  });
+  
+  res.json(prompts);
+});
 
 app.post('/api/signup', (req, res) => {
     const { email, password } = req.body;
@@ -136,6 +177,25 @@ app.post('/api/analyze', (req, res) => {
             { criterion: 'Cost-Benefit Analysis', score: 2 }
         ]
     });
+});
+
+// File upload endpoint
+app.post('/api/upload', upload.single('file'), (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: 'No file uploaded' });
+    }
+
+    // Return success response
+    res.json({
+      fileName: req.file.originalname,
+      fileSize: req.file.size,
+      message: 'File uploaded successfully'
+    });
+  } catch (error) {
+    console.error('Upload error:', error);
+    res.status(500).json({ error: 'File upload failed' });
+  }
 });
 
 app.listen(8080, () => {
