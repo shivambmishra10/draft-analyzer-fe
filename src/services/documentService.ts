@@ -3,7 +3,7 @@ import { UploadResponse, SummaryRequest, SummaryResponse } from "@/model/Documen
 import { EvaluationResponse, EvaluationRequest } from "@/model/EvaluationModels";
 import { ScoreAnalysisRequest, ScoreAnalysisResponse } from "@/model/ScoreAnalysisModels";
 
-const BASE_URL = "http://localhost:8080/api";
+const BASE_URL = "http://localhost:8000";
 
 export const uploadDocument = async (file: File): Promise<UploadResponse> => {
   const formData = new FormData();
