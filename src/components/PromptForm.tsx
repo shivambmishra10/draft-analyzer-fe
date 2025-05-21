@@ -6,7 +6,7 @@ const { Option } = Select;
 
 interface PromptFormProps {
   initialValues?: Partial<Prompt>;
-  form: any; // Using any for Form instance type brevity
+  form: any; // Form instance
 }
 
 const categories = [
@@ -21,7 +21,19 @@ const categories = [
   'Other'
 ];
 
-const PromptForm: React.FC<PromptFormProps> = ({ initialValues, form }) => {
+const assessmentTypes = [
+  'Goal Setting',
+  'Inclusion',
+  'Timeline',
+  'Budgeting',
+  'Cost Analysis',
+  'Others'
+];
+
+const PromptForm: React.FC<PromptFormProps> = ({ initialValues = {}, form }) => {
+  const isCategoryDisabled = !!initialValues.category;
+  const isAssessmentTypeDisabled = !!initialValues.assessmentType;
+
   return (
     <Form
       form={form}
@@ -41,9 +53,27 @@ const PromptForm: React.FC<PromptFormProps> = ({ initialValues, form }) => {
         label="Category"
         rules={[{ required: true, message: 'Please select a category' }]}
       >
-        <Select placeholder="Select a category">
+        <Select
+          placeholder="Select a category"
+          disabled={isCategoryDisabled}
+        >
           {categories.map(category => (
             <Option key={category} value={category}>{category}</Option>
+          ))}
+        </Select>
+      </Form.Item>
+
+      <Form.Item
+        name="assessmentType"
+        label="Assessment Type"
+        rules={[{ required: true, message: 'Please select an assessment type' }]}
+      >
+        <Select
+          placeholder="Select an assessment type"
+          disabled={isAssessmentTypeDisabled}
+        >
+          {assessmentTypes.map(assessmentType => (
+            <Option key={assessmentType} value={assessmentType}>{assessmentType}</Option>
           ))}
         </Select>
       </Form.Item>
