@@ -4,6 +4,7 @@ export interface Prompt {
   id: number;
   question: string;
   category: string;
+  assessmentType: string;
   isRequired: boolean;
   createdAt: string;
   lastModified: string;
@@ -23,12 +24,13 @@ interface PromptStore {
   setSelectedPrompt: (prompt: Prompt | null) => void;
 }
 
-// Initial prompts from PromptEvaluation
+// ✅ Initial prompts with assessmentType added
 const initialPrompts: Prompt[] = [
   {
     id: 1,
     question: "What are the main policy objectives?",
     category: "Objectives",
+    assessmentType: "Goal Setting",
     isRequired: true,
     createdAt: "2025-05-01",
     lastModified: "2025-05-01"
@@ -37,6 +39,7 @@ const initialPrompts: Prompt[] = [
     id: 2,
     question: "How does this policy address equity concerns?",
     category: "Equity",
+    assessmentType: "Inclusion",
     isRequired: true,
     createdAt: "2025-05-01",
     lastModified: "2025-05-01"
@@ -45,6 +48,7 @@ const initialPrompts: Prompt[] = [
     id: 3,
     question: "What is the implementation timeline?",
     category: "Implementation",
+    assessmentType: "Timeline",
     isRequired: true,
     createdAt: "2025-05-01",
     lastModified: "2025-05-01"
@@ -53,10 +57,20 @@ const initialPrompts: Prompt[] = [
     id: 4,
     question: "What funding mechanisms are proposed?",
     category: "Financial",
+    assessmentType: "Budgeting",
     isRequired: true,
     createdAt: "2025-05-01",
     lastModified: "2025-05-01"
-  }
+  },
+  {
+    id: 5,
+    question: "What is the implementation cost?",
+    category: "Implementation",
+    assessmentType: "Cost Analysis",
+    isRequired: true,
+    createdAt: "2025-05-01",
+    lastModified: "2025-05-01"
+  },
 ];
 
 export const usePromptStore = create<PromptStore>((set) => ({
@@ -65,36 +79,44 @@ export const usePromptStore = create<PromptStore>((set) => ({
   isEditModalVisible: false,
   selectedPrompt: null,
   setPrompts: (prompts) => set({ prompts }),
-  addPrompt: (promptData) => set((state) => {
-    const now = new Date().toISOString().split('T')[0];
-    return {
-      prompts: [...state.prompts, {
-        ...promptData,
-        id: Math.max(...state.prompts.map(p => p.id)) + 1,
-        createdAt: now,
-        lastModified: now
-      }]
-    };
-  }),
-  updatePrompt: (id, promptData) => set((state) => ({
-    prompts: state.prompts.map(p => 
-      p.id === id ? { 
-        ...p, 
-        ...promptData, 
-        lastModified: new Date().toISOString().split('T')[0]
-      } : p
-    )
-  })),
-  deletePrompt: (id: number) => set((state) => {
-    const promptExists = state.prompts.some(p => p.id === id);
-    if (!promptExists) {
-      throw new Error(`Prompt with id ${id} not found`);
-    }
-    return {
-      prompts: state.prompts.filter(p => p.id !== id)
-    };
-  }),
+  addPrompt: (promptData) =>
+    set((state) => {
+      const now = new Date().toISOString().split('T')[0];
+      return {
+        prompts: [
+          ...state.prompts,
+          {
+            ...promptData,
+            id: Math.max(...state.prompts.map((p) => p.id)) + 1,
+            createdAt: now,
+            lastModified: now,
+          },
+        ],
+      };
+    }),
+  updatePrompt: (id, promptData) =>
+    set((state) => ({
+      prompts: state.prompts.map((p) =>
+        p.id === id
+          ? {
+              ...p,
+              ...promptData,
+              lastModified: new Date().toISOString().split('T')[0],
+            }
+          : p
+      ),
+    })),
+  deletePrompt: (id: number) =>
+    set((state) => {
+      const promptExists = state.prompts.some((p) => p.id === id);
+      if (!promptExists) {
+        throw new Error(`Prompt with id ${id} not found`);
+      }
+      return {
+        prompts: state.prompts.filter((p) => p.id !== id),
+      };
+    }),
   setAddModalVisible: (visible) => set({ isAddModalVisible: visible }),
   setEditModalVisible: (visible) => set({ isEditModalVisible: visible }),
-  setSelectedPrompt: (prompt) => set({ selectedPrompt: prompt })
+  setSelectedPrompt: (prompt) => set({ selectedPrompt: prompt }),
 }));
