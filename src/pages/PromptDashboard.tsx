@@ -12,7 +12,7 @@ import PromptForm from '../components/PromptForm';
 const { Panel } = Collapse;
 const { Title } = Typography;
 
-const categories = ['Policy Review', 'Equity', 'Implementation', 'Financial', 'Objectives'];
+const categories = ['Policy Review', 'Regulation', 'Law & Legislation', 'Financial', 'Directive'];
 
 const PromptDashboard: React.FC = () => {
   const [searchCategory, setSearchCategory] = useState('');
@@ -92,25 +92,25 @@ const [selectedAssessmentType, setSelectedAssessmentType] = useState<string | nu
 
   const handleEditCategory = (category: string) => {
     Modal.confirm({
-      title: 'Edit Category',
+      title: 'Edit Document Type',
       content: `Are you sure you want to edit the category "${category}"?`,
       okText: 'Yes',
       cancelText: 'No',
       onOk() {
-        message.success('Category edited successfully');
+        message.success('Document type edited successfully');
       },
     });
   };
 
   const handleDeleteCategory = (category: string) => {
     Modal.confirm({
-      title: 'Delete Category',
+      title: 'Delete Document Type',
       content: `Are you sure you want to delete the category "${category}"?`,
       okText: 'Yes',
       okType: 'danger',
       cancelText: 'No',
       onOk() {
-        message.success('Category deleted successfully');
+        message.success('Document type deleted successfully');
       },
     });
   };
@@ -179,7 +179,7 @@ const [selectedAssessmentType, setSelectedAssessmentType] = useState<string | nu
       <Title level={2}>Prompt Dashboard</Title>
 
       <div style={{ padding: 24 }}>
-      <Title level={3}>Category</Title>
+      <Title level={3}>Document Type</Title>
 
       <Input
         placeholder="Search category"
@@ -197,7 +197,7 @@ const [selectedAssessmentType, setSelectedAssessmentType] = useState<string | nu
             icon={<PlusOutlined />}
             onClick={() => setAddModalVisible(true)}
           >
-            Add Category
+            Add Document type
           </Button>
         </div>
       ) : (

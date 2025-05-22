@@ -29,7 +29,7 @@ const initialPrompts: Prompt[] = [
   {
     id: 1,
     question: "What are the main policy objectives?",
-    category: "Objectives",
+    category: "Policy document",
     assessmentType: "Goal Setting",
     isRequired: true,
     createdAt: "2025-05-01",
@@ -38,7 +38,7 @@ const initialPrompts: Prompt[] = [
   {
     id: 2,
     question: "How does this policy address equity concerns?",
-    category: "Equity",
+    category: "Regulation",
     assessmentType: "Inclusion",
     isRequired: true,
     createdAt: "2025-05-01",
@@ -47,7 +47,7 @@ const initialPrompts: Prompt[] = [
   {
     id: 3,
     question: "What is the implementation timeline?",
-    category: "Implementation",
+    category: "Law & Legislation",
     assessmentType: "Timeline",
     isRequired: true,
     createdAt: "2025-05-01",
@@ -56,7 +56,7 @@ const initialPrompts: Prompt[] = [
   {
     id: 4,
     question: "What funding mechanisms are proposed?",
-    category: "Financial",
+    category: "Directive",
     assessmentType: "Budgeting",
     isRequired: true,
     createdAt: "2025-05-01",
@@ -65,7 +65,7 @@ const initialPrompts: Prompt[] = [
   {
     id: 5,
     question: "What is the implementation cost?",
-    category: "Implementation",
+    category: "Law & Legislation",
     assessmentType: "Cost Analysis",
     isRequired: true,
     createdAt: "2025-05-01",
