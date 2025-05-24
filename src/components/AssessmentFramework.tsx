@@ -1,68 +1,59 @@
-import { Typography, Collapse } from "antd";
-import { CaretRightOutlined } from "@ant-design/icons";
-import { FrameworkData } from "@/model/FrameworkData";
+import { useState } from "react";
+import { Button, Card, Typography } from "antd";
+import { InfoCircleOutlined } from "@ant-design/icons";
+import { Assessment } from "@/model/DocumentModels";
 
 const { Paragraph } = Typography;
-const { Panel } = Collapse;
 
-export default function AssessmentFramework({
-  data,
-  index,
-}: {
-  data: FrameworkData;
-  index: number;
-}) {
-  const isFirst = index === 0;
+export default function AssessmentFramework({ key, assessment, index }: { key: React.Key; assessment: Assessment; index: number }) {
+  const [showPrompts, setShowPrompts] = useState(false);
 
   return (
-    <div className="mb-4 rounded-lg overflow-hidden shadow-sm bg-blue-50">
-      <Collapse
-        defaultActiveKey={isFirst ? [String(index)] : []}
-        expandIconPosition="end"
-        expandIcon={({ isActive }) => (
-          <CaretRightOutlined
-            rotate={isActive ? 90 : 0}
-            className="transition-transform duration-300"
-          />
-        )}
-        bordered={false}
-        className="bg-blue-50"
+    <div className="mb-6">
+      <Card
+        title={
+          <div className="text-gray-800 font-semibold text-base">
+            {assessment.title}
+          </div>
+        }
+        className="bg-gray-50 border border-gray-200 shadow-sm rounded-lg"
+        bodyStyle={{ paddingBottom: 12 }}
       >
-<Panel
-  key={String(index)}
-  header={
-    <div className="bg-gray-50 text-gray-800 px-4 py-2 font-semibold text-base rounded-t-md">
-      {data.title}
-    </div>
-  }
-  className="!bg-gray-50"
->
+        <Paragraph className="text-gray-700 mb-3">{assessment.description}</Paragraph>
 
-          <div className="bg-white rounded-b-md px-4 py-3">
-            <Paragraph className="mb-4 text-gray-700">{data.description}</Paragraph>
+        <Button
+          type="link"
+          icon={<InfoCircleOutlined />}
+          onClick={() => setShowPrompts(!showPrompts)}
+          className="!text-blue-600 hover:!text-blue-700 text-sm font-medium px-0"
+        >
+          {showPrompts ? "Hide Prompts" : "View Prompts"}
+        </Button>
 
-            <div className="grid grid-cols-12 text-sm font-semibold bg-blue-100 text-blue-800 p-2 rounded-t border-b border-blue-200">
-              <div className="col-span-3">Category</div>
-              <div className="col-span-9">Prompt</div>
-            </div>
-
-
-            {data.prompts.map((item, idx) => (
+        {showPrompts && (
+          <div className="space-y-3 mt-3">
+            {assessment.prompts.map((item, idx) => (
               <div
                 key={idx}
-                className="grid grid-cols-12 items-center border-b border-gray-200 px-2 py-2 hover:bg-gray-50"
+                className="bg-white border border-gray-200 rounded-md p-4 shadow-sm hover:shadow transition"
               >
-                <div className="col-span-3">
-                  <span className="text-blue-600 bg-blue-50 px-2 py-1 rounded text-xs">
+                {/* Category and its value in same line */}
+                <div className="flex items-center text-sm text-gray-700 mb-2">
+                  <span className="font-medium text-gray-500 mr-2">
+                    Category:
+                  </span>
+                  <span className="text-blue-700 font-semibold">
                     {item.category}
                   </span>
                 </div>
-                <div className="col-span-9 text-gray-800">{item.prompt}</div>
+
+                {/* Prompt */}
+                <div className="text-gray-800 text-sm">{item.question}</div>
               </div>
             ))}
           </div>
-        </Panel>
-      </Collapse>
+        )}
+      </Card>
     </div>
   );
 }

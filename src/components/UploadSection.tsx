@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Upload,
   Progress,
@@ -12,15 +12,14 @@ import {
 } from "antd";
 import type { UploadProps } from "antd";
 import { CloudUploadOutlined } from "@ant-design/icons";
-import { uploadDocument } from "@/services/documentService";
+import { getDocumentTypes, uploadDocument } from "@/services/documentService";
 import { useDocumentStore } from "@/store/documentStore";
 import AssessmentModal from "@/components/AssessmentModal";
+import { DocumentType } from "@/model/DocumentModels";
 
 const { Dragger } = Upload;
 const { Title, Paragraph, Text } = Typography;
 const { Option } = Select;
-
-const DOCUMENT_TYPES = ["Policy", "Report", "Act", "Guideline", "Other"];
 
 export default function UploadSection() {
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
@@ -28,8 +27,12 @@ export default function UploadSection() {
   const [isUploading, setIsUploading] = useState(false);
   const [fileName, setFileName] = useState<string | null>(null);
   const [showSummarize, setShowSummarize] = useState(false);
-  const [selectedDocType, setSelectedDocType] = useState<string | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedDocType, setSelectedDocType] = useState<DocumentType | null>(
+    null
+  );
+  const [error, setError] = useState<string | null>(null);
+  const [documentTypes, setDocumentTypes] = useState<DocumentType[]>([]);
+  const [isLoadingTypes, setIsLoadingTypes] = useState(false);
 
   const setSummaryRequested = useDocumentStore(
     (state) => state.setSummaryRequested
@@ -37,6 +40,21 @@ export default function UploadSection() {
   const setUploadedFileName = useDocumentStore(
     (state) => state.setUploadedFileName
   );
+
+  useEffect(() => {
+    loadDocumentTypes();
+  }, []);
+
+  const loadDocumentTypes = async () => {
+    try {
+      const types = await getDocumentTypes();
+      setDocumentTypes(types);
+    } catch (error) {
+      console.error("Failed to load document types:", error);
+    } finally {
+      setIsLoadingTypes(false);
+    }
+  };
 
   const handleUpload = async (file: File) => {
     setIsUploading(true);
@@ -60,21 +78,16 @@ export default function UploadSection() {
         setShowSummarize(true);
       }
     } catch (err) {
-      message.error("Upload failed.");
+      const errorMessage = err instanceof Error ? err.message : "Upload failed";
+      setError(errorMessage);
+      message.error(errorMessage);
     } finally {
       setIsUploading(false);
     }
   };
 
-  const handleSummarizeClick = () => {
-    if (fileName && selectedDocType) {
-      setIsModalOpen(true); // Open modal first
-    }
-  };
-
   const proceedWithSummarization = () => {
     setSummaryRequested(true);
-    setIsModalOpen(false);
     const summarySection = document.getElementById("summary-section");
     if (summarySection) {
       summarySection.scrollIntoView({ behavior: "smooth" });
@@ -115,10 +128,10 @@ export default function UploadSection() {
     >
       <div className="text-center">
         <Title level={3} style={{ margin: 0, color: "#1f2937" }}>
-          Document Summarizer
+          Document Analyzer
         </Title>
         <Paragraph type="secondary">
-          Drag and drop your policy or document file here, or click to browse.
+          Upload your document and select its type to begin analysis
         </Paragraph>
       </div>
 
@@ -151,6 +164,12 @@ export default function UploadSection() {
         </div>
       )}
 
+      {error && (
+        <div className="text-red-500 mt-4">
+          <Text type="danger">{error}</Text>
+        </div>
+      )}
+
       {!isUploading && uploadedFile && showSummarize && (
         <>
           <div className="w-full max-w-sm mt-4">
@@ -158,36 +177,32 @@ export default function UploadSection() {
             <Select
               placeholder="Choose document type"
               style={{ width: "100%", marginTop: 8 }}
-              onChange={(value) => setSelectedDocType(value)}
-              value={selectedDocType}
+              onChange={(value) => {
+                const selected =
+                  documentTypes.find((dt) => dt.id === value) || null;
+                setSelectedDocType(selected);
+              }}
+              value={selectedDocType?.id}
             >
-              {DOCUMENT_TYPES.map((type) => (
-                <Option key={type} value={type}>
-                  {type}
+              {documentTypes.map((type) => (
+                <Option key={type.id} value={type.id}>
+                  {type.name}
                 </Option>
               ))}
             </Select>
           </div>
-
-          <Space style={{ marginTop: 24 }}>
-            <Button
-              type="primary"
-              onClick={handleSummarizeClick}
-              disabled={!selectedDocType}
-            >
-              Summarize
-            </Button>
-          </Space>
+          {selectedDocType && (
+            <>
+              <AssessmentModal documentType={selectedDocType} />
+              <Space style={{ marginTop: 24 }}>
+                <Button type="primary" onClick={proceedWithSummarization}>
+                  Proceed with Analysis
+                </Button>
+              </Space>
+            </>
+          )}
         </>
       )}
-
-      {/* Modal showing assessment framework */}
-      <AssessmentModal
-        visible={isModalOpen}
-        onClose={proceedWithSummarization}
-        documentName={uploadedFile?.name || ""}
-        documentType={selectedDocType || ""}
-      />
     </Card>
   );
 }

@@ -1,5 +1,6 @@
 import axios from "axios";
-import { UploadResponse, SummaryRequest, SummaryResponse } from "@/model/DocumentModels";
+//import { UploadResponse, SummaryRequest, SummaryResponse } from "@/model/documentModels";
+import { UploadResponse, SummaryRequest, SummaryResponse, DocumentType, Assessment, AssessmentPrompt } from "@/model/DocumentModels";
 import { EvaluationResponse, EvaluationRequest } from "@/model/EvaluationModels";
 import { ScoreAnalysisRequest, ScoreAnalysisResponse } from "@/model/ScoreAnalysisModels";
 
@@ -22,6 +23,20 @@ export const fetchSummary = async (request: SummaryRequest): Promise<SummaryResp
 };
 
 
+export const getDocumentTypes = async (): Promise<DocumentType[]> => {
+  const response = await axios.get<DocumentType[]>(`${BASE_URL}/document-types`);
+  return response.data;
+};
+
+export const getAssessmentsByDocumentType = async (typeId: string): Promise<Assessment[]> => {
+  const response = await axios.get<Assessment[]>(`${BASE_URL}/document-types/${typeId}/assessments`);
+  return response.data;
+};
+
+export const getAssessmentPrompts = async (assessmentId: number): Promise<AssessmentPrompt[]> => {
+  const response = await axios.get<AssessmentPrompt[]>(`${BASE_URL}/assessments/${assessmentId}/prompts`);
+  return response.data;
+};
 
 export const fetchPromptEvaluations = async (
   req: EvaluationRequest

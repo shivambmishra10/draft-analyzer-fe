@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const multer = require('multer');
+const { documentTypes, assessmentPrompts } = require('./document-types');
 
 const app = express();
 const PORT = 8000;
@@ -120,6 +121,32 @@ app.post('/score', (req, res) => {
   }, 1500);
 });
 
+// Document type endpoints
+app.get('/document-types', (req, res) => {
+  res.json(documentTypes);
+});
+
+app.get('/document-types/:typeId/assessments', (req, res) => {
+  const { typeId } = req.params;
+  //const typeAssessments = assessmentPrompts[typeId] || [];
+  res.json(assessmentPrompts);
+});
+
+// Get prompts for a specific assessment
+app.get('/assessments/:assessmentId/prompts', (req, res) => {
+  const { assessmentId } = req.params;
+  let prompts = [];
+  
+  // Search through all document types for the assessment
+  Object.values(assessmentPrompts).forEach(assessments => {
+    const assessment = assessments.find(a => a.id === parseInt(assessmentId));
+    if (assessment) {
+      prompts = assessment.prompts;
+    }
+  });
+  
+  res.json(prompts);
+});
 
 app.listen(PORT, () => {
   console.log(`✅ Mock server running at http://localhost:${PORT}`);
