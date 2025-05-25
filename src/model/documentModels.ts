@@ -1,12 +1,22 @@
+// Upload Request 
+export interface UploadRequest {
+  file: File;
+  sessionId: string;
+  userId: string;
+  documentName: string;
+}
+
+
 // Upload response
 export interface UploadResponse {
+  docUploadId: string;
   fileName: string;
   warning?: string | null;
 }
 
 // Summarize request
 export interface SummaryRequest {
-  fileName: string;
+  docUploadId: string;
 }
 
 // Summarize response (used in InsightSection)

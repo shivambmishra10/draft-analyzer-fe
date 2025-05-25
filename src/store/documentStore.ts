@@ -1,19 +1,20 @@
+import { UploadResponse } from '@/model/documentModels';
 import { create } from 'zustand';
 
 interface DocumentState {
   fileUploaded: boolean;
   summaryRequested: boolean;
-  uploadedFileName: string | null;
+  uploadResponse: UploadResponse | null;
+  setUploadResponse: (response: UploadResponse | null) => void;
   setFileUploaded: (uploaded: boolean) => void;
-  setUploadedFileName: (name: string) => void;
   setSummaryRequested: (requested: boolean) => void;
 }
 
 export const useDocumentStore = create<DocumentState>((set) => ({
   fileUploaded: false,
   summaryRequested: false,
-  uploadedFileName: null,
+  uploadResponse: null,
   setFileUploaded: (uploaded) => set({ fileUploaded: uploaded }),
   setSummaryRequested: (requested) => set({ summaryRequested: requested }),
-  setUploadedFileName: (name: string) => set({ uploadedFileName: name }),
+  setUploadResponse: (response: UploadResponse | null) => set({ uploadResponse: response }),
 }));

@@ -14,8 +14,8 @@ import type { UploadProps } from "antd";
 import { CloudUploadOutlined } from "@ant-design/icons";
 import { getDocumentTypes, uploadDocument } from "@/services/documentService";
 import { useDocumentStore } from "@/store/documentStore";
-import AssessmentModal from "@/components/AssessmentModal";
-import { DocumentType } from "@/model/DocumentModels";
+import AssessmentsSection from "@/components/AssessmentsSection";
+import { DocumentType, UploadResponse } from "@/model/documentModels";
 
 const { Dragger } = Upload;
 const { Title, Paragraph, Text } = Typography;
@@ -37,8 +37,8 @@ export default function UploadSection() {
   const setSummaryRequested = useDocumentStore(
     (state) => state.setSummaryRequested
   );
-  const setUploadedFileName = useDocumentStore(
-    (state) => state.setUploadedFileName
+  const setUploadResponse = useDocumentStore(
+    (state) => state.setUploadResponse
   );
 
   useEffect(() => {
@@ -57,34 +57,45 @@ export default function UploadSection() {
   };
 
   const handleUpload = async (file: File) => {
-    setIsUploading(true);
-    setUploadProgress(0);
-    setSummaryRequested(false);
-    setSelectedDocType(null);
+  setIsUploading(true);
+  setUploadProgress(0);
+  setSummaryRequested(false);
+  setSelectedDocType(null);
 
-    try {
-      const res = await uploadDocument(file);
-      setFileName(res.fileName);
-      setUploadedFileName(res.fileName);
+  const sessionId = "abc123"; // Replace with actual sessionId logic
+  const userId = "user456";   // Replace with actual userId logic
+  const documentName = file.name;
 
-      if (res.warning) {
-        Modal.confirm({
-          title: "Warning",
-          content: res.warning + " Do you want to continue?",
-          onOk: () => setShowSummarize(true),
-          onCancel: () => resetUpload(),
-        });
-      } else {
-        setShowSummarize(true);
-      }
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Upload failed";
-      setError(errorMessage);
-      message.error(errorMessage);
-    } finally {
-      setIsUploading(false);
+  try {
+    const res: UploadResponse = await uploadDocument({
+      file,
+      sessionId,
+      userId,
+      documentName,
+    });
+
+    setFileName(res.fileName);
+    setUploadResponse(res);
+
+    if (res.warning) {
+      Modal.confirm({
+        title: "Warning",
+        content: res.warning + " Do you want to continue?",
+        onOk: () => setShowSummarize(true),
+        onCancel: () => resetUpload(),
+      });
+    } else {
+      setShowSummarize(true);
     }
-  };
+  } catch (err) {
+    const errorMessage = err instanceof Error ? err.message : "Upload failed";
+    setError(errorMessage);
+    message.error(errorMessage);
+  } finally {
+    setIsUploading(false);
+  }
+};
+
 
   const proceedWithSummarization = () => {
     setSummaryRequested(true);
@@ -193,7 +204,7 @@ export default function UploadSection() {
           </div>
           {selectedDocType && (
             <>
-              <AssessmentModal documentType={selectedDocType} />
+              <AssessmentsSection documentType={selectedDocType} />
               <Space style={{ marginTop: 24 }}>
                 <Button type="primary" onClick={proceedWithSummarization}>
                   Proceed with Analysis

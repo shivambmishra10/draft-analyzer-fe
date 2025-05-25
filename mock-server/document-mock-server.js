@@ -20,20 +20,21 @@ app.post('/upload', upload.single('file'), (req, res) => {
   if (!file) return res.status(400).json({ error: 'File is required' });
 
   const fileName = `${Date.now()}-${file.originalname}`;
+  const docUploadId = `${Date.now()}-${file.originalname}`;
   const warning = file.originalname.toLowerCase().includes("test")
     ? "This document has already been uploaded."
     : null;
 
   // Optional delay
   setTimeout(() => {
-    res.json({ fileName, warning });
-  }, 1000); // 1 sec delay
+    res.json({ fileName, docUploadId, warning });
+  }, 100); // 1 sec delay
 });
 
 // Summarize Endpoint
 app.post('/summarize', (req, res) => {
-  const { fileName } = req.body;
-  if (!fileName) return res.status(400).json({ error: "fileName is required" });
+  const { docUploadId } = req.body;
+  if (!docUploadId) return res.status(400).json({ error: "docUploadId is required" });
 
   setTimeout(() => {
     // if (Math.random() < 0.2) {
@@ -55,12 +56,12 @@ app.post('/summarize', (req, res) => {
 });
 
 app.post('/evaluations', (req, res) => {
-  const { fileName } = req.body;
+  const { docUploadId } = req.body;
 
   // Simulate delay
   setTimeout(() => {
-    if (!fileName || fileName === "invalid.doc") {
-      return res.status(400).json({ error: "Invalid or missing file name" });
+    if (!docUploadId || docUploadId === "invalid.doc") {
+      return res.status(400).json({ error: "Invalid or missing docUploadId" });
     }
 
     res.json({
@@ -91,11 +92,11 @@ app.post('/evaluations', (req, res) => {
 });
 
 app.post('/score', (req, res) => {
-  const { fileName } = req.body;
+  const { docUploadId } = req.body;
 
   setTimeout(() => {
-    if (!fileName) {
-      return res.status(400).json({ error: 'Missing file name' });
+    if (!docUploadId) {
+      return res.status(400).json({ error: 'Missing docUploadId' });
     }
 
     res.json({

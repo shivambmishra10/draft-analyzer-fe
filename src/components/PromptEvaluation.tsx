@@ -13,16 +13,17 @@ const getScoreTagColor = (score: number) => {
 };
 
 const PromptEvaluation: React.FC = () => {
-  const fileName = useDocumentStore((state) => state.uploadedFileName);
+  const fileName = useDocumentStore((state) => state.uploadResponse?.fileName);
+  const docUploadId = useDocumentStore((state) => state.uploadResponse?.docUploadId);
   const [evaluations, setEvaluations] = useState<EvaluationItem[]>([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
-      if (!fileName) return;
+      if (!fileName || !docUploadId) return;
       setLoading(true);
       try {
-        const data = await fetchPromptEvaluations({ fileName });
+        const data = await fetchPromptEvaluations({ docUploadId });
         setEvaluations(data.evaluations);
       } catch (err) {
         message.error("Failed to fetch evaluations.");
@@ -32,7 +33,7 @@ const PromptEvaluation: React.FC = () => {
     };
 
     fetchData();
-  }, [fileName]);
+  }, [docUploadId]);
 
   return (
     <Card style={{ marginTop: 32 }} variant="borderless">

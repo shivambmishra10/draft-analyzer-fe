@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Button, Card, Typography } from "antd";
 import { InfoCircleOutlined } from "@ant-design/icons";
-import { Assessment } from "@/model/DocumentModels";
+import { Assessment } from "@/model/documentModels";
 
 const { Paragraph } = Typography;
 

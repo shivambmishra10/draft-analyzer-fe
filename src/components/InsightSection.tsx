@@ -16,12 +16,13 @@ import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 import { fetchSummary } from "@/services/documentService";
 import { useDocumentStore } from "@/store/documentStore";
-import { SummaryResponse } from "@/model/DocumentModels";
+import { SummaryResponse } from "@/model/documentModels";
 
 const { Title, Paragraph } = Typography;
 
 const InsightSection: React.FC = () => {
-  const fileName = useDocumentStore((state) => state.uploadedFileName);
+  const fileName = useDocumentStore((state) => state.uploadResponse?.fileName);
+  const docUploadId = useDocumentStore((state) => state.uploadResponse?.docUploadId);
   const summaryRequested = useDocumentStore((state) => state.summaryRequested);
 
   const [loading, setLoading] = useState(false);
@@ -34,7 +35,12 @@ const InsightSection: React.FC = () => {
 
       setLoading(true);
       try {
-        const response = await fetchSummary({ fileName });
+        if (!docUploadId) {
+          message.error("Document upload ID is missing.");
+          setLoading(false);
+          return;
+        }
+        const response = await fetchSummary({ docUploadId });
         setSummaryData(response);
       } catch (err) {
         message.error("Failed to fetch summary.");

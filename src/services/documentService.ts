@@ -1,21 +1,29 @@
 import axios from "axios";
-//import { UploadResponse, SummaryRequest, SummaryResponse } from "@/model/documentModels";
-import { UploadResponse, SummaryRequest, SummaryResponse, DocumentType, Assessment, AssessmentPrompt } from "@/model/DocumentModels";
+import { UploadResponse, SummaryRequest, SummaryResponse, DocumentType, Assessment, AssessmentPrompt, UploadRequest } from "@/model/documentModels";
 import { EvaluationResponse, EvaluationRequest } from "@/model/EvaluationModels";
 import { ScoreAnalysisRequest, ScoreAnalysisResponse } from "@/model/ScoreAnalysisModels";
 
 const BASE_URL = "http://localhost:8000";
 
-export const uploadDocument = async (file: File): Promise<UploadResponse> => {
+export const uploadDocument = async (request: UploadRequest): Promise<UploadResponse> => {
   const formData = new FormData();
-  formData.append("file", file);
+  formData.append("file", request.file);
+  formData.append("sessionId", request.sessionId);
+  formData.append("userId", request.userId);
+  formData.append("documentName", request.documentName);
 
-  const response = await axios.post<UploadResponse>(`${BASE_URL}/upload`, formData, {
-    headers: { "Content-Type": "multipart/form-data" },
+  const response = await fetch(`${BASE_URL}/upload`, {
+    method: "POST",
+    body: formData,
   });
 
-  return response.data;
-};
+  if (!response.ok) {
+    const error = await response.text();
+    throw new Error(error || "Upload failed");
+  }
+
+  return response.json();
+}
 
 export const fetchSummary = async (request: SummaryRequest): Promise<SummaryResponse> => {
   const response = await axios.post<SummaryResponse>(`${BASE_URL}/summarize`, request);

@@ -1,5 +1,5 @@
 export interface ScoreAnalysisRequest {
-  fileName: string;
+  docUploadId: string;
 }
 
 export interface ScoreAnalysisResponse {
