@@ -1,5 +1,5 @@
 export interface ScoreAnalysisRequest {
-  docUploadId: string;
+  docId: string;
 }
 
 export interface ScoreAnalysisResponse {

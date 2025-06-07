@@ -9,14 +9,14 @@ export interface UploadRequest {
 
 // Upload response
 export interface UploadResponse {
-  docUploadId: string;
+  docId: string;
   fileName: string;
   warning?: string | null;
 }
 
 // Summarize request
 export interface SummaryRequest {
-  docUploadId: string;
+  docId: string;
 }
 
 // Summarize response (used in InsightSection)

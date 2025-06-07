@@ -9,5 +9,5 @@ export interface EvaluationResponse {
 }
 
 export interface EvaluationRequest {
-  docUploadId: string;
+  docId: string;
 }

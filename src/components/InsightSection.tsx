@@ -22,7 +22,7 @@ const { Title, Paragraph } = Typography;
 
 const InsightSection: React.FC = () => {
   const fileName = useDocumentStore((state) => state.uploadResponse?.fileName);
-  const docUploadId = useDocumentStore((state) => state.uploadResponse?.docUploadId);
+  const docId = useDocumentStore((state) => state.uploadResponse?.docId);
   const summaryRequested = useDocumentStore((state) => state.summaryRequested);
 
   const [loading, setLoading] = useState(false);
@@ -35,12 +35,12 @@ const InsightSection: React.FC = () => {
 
       setLoading(true);
       try {
-        if (!docUploadId) {
+        if (!docId) {
           message.error("Document upload ID is missing.");
           setLoading(false);
           return;
         }
-        const response = await fetchSummary({ docUploadId });
+        const response = await fetchSummary({ docId });
         setSummaryData(response);
       } catch (err) {
         message.error("Failed to fetch summary.");

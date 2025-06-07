@@ -23,17 +23,17 @@ const pieColors = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#A9A9F5"];
 
 const ScoreAnalysis: React.FC = () => {
   const fileName = useDocumentStore((state) => state.uploadResponse?.fileName);
-  const docUploadId = useDocumentStore((state) => state.uploadResponse?.docUploadId);
+  const docId = useDocumentStore((state) => state.uploadResponse?.docId);
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState<ScoreAnalysisResponse | null>(null);
 
   useEffect(() => {
-    if (!fileName || !docUploadId) return;
+    if (!fileName || !docId) return;
 
     const loadData = async () => {
       setLoading(true);
       try {
-        const response = await fetchScoreAnalysis({ docUploadId });
+        const response = await fetchScoreAnalysis({ docId });
         setData(response);
       } catch (err) {
         message.error("Failed to fetch score analysis.");
