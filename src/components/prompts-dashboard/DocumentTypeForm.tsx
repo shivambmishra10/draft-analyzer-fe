@@ -1,6 +1,8 @@
-import { Modal, Input, Button } from 'antd';
+import { Modal, Input, Button, Select, Card, Checkbox } from 'antd';
 import { useEffect, useState } from 'react';
 import { DocumentType } from '@/model/DocumentModels';
+import { AssessmentArea } from '@/model/AssessmentAreaModel';
+import { getAssessmentAreas } from '@/services/prompt-dashboard/assessmentAreaService';
 
 interface Props {
   visible: boolean;
@@ -25,12 +27,15 @@ const DocumentTypeForm: React.FC<Props> = ({
     created_on: '',
     updated_by: '',
     updated_on: '',
+    assessment_ids: [],
   });
+
+  const [assessmentOptions, setAssessmentOptions] = useState<AssessmentArea[]>([]);
 
   useEffect(() => {
     if (mode === 'edit' && initialData) {
       setFormData(initialData);
-    } else {
+    } else if (mode === 'add') {
       setFormData({
         doc_type_id: 0,
         doc_type_name: '',
@@ -39,11 +44,25 @@ const DocumentTypeForm: React.FC<Props> = ({
         created_on: '',
         updated_by: '',
         updated_on: '',
+        assessment_ids: [],
       });
     }
   }, [mode, initialData]);
 
-  const handleChange = (field: keyof DocumentType, value: string) => {
+  useEffect(() => {
+    const fetchAssessments = async () => {
+      try {
+        const result = await getAssessmentAreas();
+        setAssessmentOptions(result);
+      } catch (error) {
+        console.error('Failed to fetch assessment areas:', error);
+      }
+    };
+
+    fetchAssessments();
+  }, []);
+
+  const handleChange = (field: keyof DocumentType, value: any) => {
     setFormData({ ...formData, [field]: value });
   };
 
@@ -77,6 +96,25 @@ const DocumentTypeForm: React.FC<Props> = ({
             onChange={(e) => handleChange('description', e.target.value)}
           />
         </div>
+
+        <div>
+        <label className="block font-medium mb-2">Link Assessment Areas</label>
+        <Card className="border rounded-lg p-4 max-h-48 overflow-y-auto">
+          <Checkbox.Group
+            value={formData.assessment_ids || []}
+            onChange={(val) => handleChange('assessment_ids', val)}
+          >
+            <div className="flex flex-col gap-2">
+              {assessmentOptions.map((area) => (
+                <Checkbox key={area.assessment_id} value={area.assessment_id}>
+                  {area.assessment_name}
+                </Checkbox>
+              ))}
+            </div>
+          </Checkbox.Group>
+        </Card>
+      </div>
+
 
         <div className="flex justify-end gap-2 mt-4">
           <Button onClick={onClose}>Cancel</Button>

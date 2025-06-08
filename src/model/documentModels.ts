@@ -33,6 +33,7 @@ export interface DocumentType {
   created_on: string; 
   updated_by: string | null;
   updated_on: string | null;
+  assessment_ids: number[] | null;
 }
 
 export interface AssessmentPrompt {
