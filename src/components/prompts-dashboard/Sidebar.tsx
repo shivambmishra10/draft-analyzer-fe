@@ -17,8 +17,8 @@ const Sidebar = ({ selectedKey, onSelect }: { selectedKey: string; onSelect: (ke
       <Menu.Item key="document-types" icon={<FileTextOutlined />}>
         Document Types
       </Menu.Item>
-      <Menu.Item key="assessment-criteria" icon={<CheckSquareOutlined />}>
-        Assessment Criteria
+      <Menu.Item key="assessment-area" icon={<CheckSquareOutlined />}>
+        Assessment Area
       </Menu.Item>
       <Menu.Item key="prompts" icon={<BulbOutlined />}>
         Prompts

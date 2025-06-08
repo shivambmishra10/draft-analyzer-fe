@@ -1,23 +1,30 @@
 const documentTypes = [
   {
-    id: "law",
-    name: "Law & Legislation",
-    description: "Legal documents, bills, and legislative proposals"
+    "doc_type_id": 1,
+    "doc_type_name": "Consultation",
+    "description": "Documents issued for public or stakeholder feedback before finalizing a policy.",
+    "created_by": "Admin",
+    "created_on": "2025-06-07T17:46:44.022931",
+    "updated_by": null,
+    "updated_on": "2025-06-07T17:46:44.022931"
   },
   {
-    id: "policy",
-    name: "Policy Document",
-    description: "Government policies, guidelines, and strategic documents"
+    "doc_type_id": 3,
+    "doc_type_name": "Amendment",
+    "description": "Changes or modifications made to existing policies or laws.",
+    "created_by": "Admin",
+    "created_on": "2025-06-07T17:48:32.073516",
+    "updated_by": null,
+    "updated_on": "2025-06-07T17:48:32.073516"
   },
   {
-    id: "regulation",
-    name: "Regulation",
-    description: "Regulatory frameworks and compliance documents"
-  },
-  {
-    id: "directive",
-    name: "Directive",
-    description: "Executive directives and administrative orders"
+    "doc_type_id": 2,
+    "doc_type_name": "Law Order",
+    "description": "Legally binding government orders or laws enacted to enforce specific regulations.",
+    "created_by": "Admin",
+    "created_on": "2025-06-07T17:48:11.311810",
+    "updated_by": "Bhagwan",
+    "updated_on": null
   }
 ];
 

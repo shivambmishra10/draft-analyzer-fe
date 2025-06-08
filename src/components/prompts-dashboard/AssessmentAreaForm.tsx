@@ -1,27 +1,27 @@
 import { Modal, Input, Button } from 'antd';
 import { useEffect, useState } from 'react';
-import { DocumentType } from '@/model/DocumentModels';
+import { AssessmentArea } from '@/model/AssessmentAreaModel';
 
 interface Props {
   visible: boolean;
   onClose: () => void;
-  onSubmit: (doc: DocumentType) => void;
+  onSubmit: (area: AssessmentArea) => void;
   mode: 'add' | 'edit';
-  initialData?: DocumentType;
+  initialData?: AssessmentArea;
 }
 
-const DocumentTypeForm: React.FC<Props> = ({
+const AssessmentAreaForm: React.FC<Props> = ({
   visible,
   onClose,
   onSubmit,
   mode,
-  initialData
+  initialData,
 }) => {
-  const [formData, setFormData] = useState<DocumentType>({
-    doc_type_id: 0,
-    doc_type_name: '',
+  const [formData, setFormData] = useState<AssessmentArea>({
+    assessment_id: 0,
+    assessment_name: '',
     description: '',
-    created_by: 'Admin',
+    created_by: '',
     created_on: '',
     updated_by: '',
     updated_on: '',
@@ -32,18 +32,15 @@ const DocumentTypeForm: React.FC<Props> = ({
       setFormData(initialData);
     } else {
       setFormData({
-        doc_type_id: 0,
-        doc_type_name: '',
+        assessment_name: '',
         description: '',
-        created_by: 'Admin',
-        created_on: '',
+        created_by: '',
         updated_by: '',
-        updated_on: '',
-      });
+      } as AssessmentArea);
     }
   }, [mode, initialData]);
 
-  const handleChange = (field: keyof DocumentType, value: string) => {
+  const handleChange = (field: keyof AssessmentArea, value: string) => {
     setFormData({ ...formData, [field]: value });
   };
 
@@ -55,17 +52,17 @@ const DocumentTypeForm: React.FC<Props> = ({
   return (
     <Modal
       open={visible}
-      title={mode === 'edit' ? 'Edit Document Type' : 'Add New Document Type'}
+      title={mode === 'edit' ? 'Edit Assessment Area' : 'Add New Assessment Area'}
       onCancel={onClose}
       footer={null}
       width={600}
     >
       <div className="space-y-5">
         <div>
-          <label className="block font-medium">Document Type Name</label>
+          <label className="block font-medium">Assessment Name</label>
           <Input
-            value={formData.doc_type_name}
-            onChange={(e) => handleChange('doc_type_name', e.target.value)}
+            value={formData.assessment_name}
+            onChange={(e) => handleChange('assessment_name', e.target.value)}
           />
         </div>
 
@@ -75,6 +72,22 @@ const DocumentTypeForm: React.FC<Props> = ({
             rows={4}
             value={formData.description}
             onChange={(e) => handleChange('description', e.target.value)}
+          />
+        </div>
+
+        <div>
+          <label className="block font-medium">Created By</label>
+          <Input
+            value={formData.created_by}
+            onChange={(e) => handleChange('created_by', e.target.value)}
+          />
+        </div>
+
+        <div>
+          <label className="block font-medium">Updated By</label>
+          <Input
+            value={formData.updated_by}
+            onChange={(e) => handleChange('updated_by', e.target.value)}
           />
         </div>
 
@@ -89,4 +102,4 @@ const DocumentTypeForm: React.FC<Props> = ({
   );
 };
 
-export default DocumentTypeForm;
+export default AssessmentAreaForm;

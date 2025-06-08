@@ -4,7 +4,7 @@ const multer = require('multer');
 const { documentTypes, assessmentPrompts } = require('./document-types');
 
 const app = express();
-const PORT = 8000;
+const PORT = 9000;
 
 app.use(cors());
 app.use(express.json());

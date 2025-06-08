@@ -1,9 +1,9 @@
 import axios from "axios";
-import { UploadResponse, SummaryRequest, SummaryResponse, DocumentType, Assessment, AssessmentPrompt, UploadRequest } from "@/model/documentModels";
+import { UploadResponse, SummaryRequest, SummaryResponse, DocumentType, Assessment, AssessmentPrompt, UploadRequest } from "@/model/DocumentModels";
 import { EvaluationResponse, EvaluationRequest } from "@/model/EvaluationModels";
 import { ScoreAnalysisRequest, ScoreAnalysisResponse } from "@/model/ScoreAnalysisModels";
 
-const BASE_URL = "http://localhost:8000";
+const BASE_URL = "http://localhost:9000";
 
 export const uploadDocument = async (request: UploadRequest): Promise<UploadResponse> => {
   const formData = new FormData();

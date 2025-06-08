@@ -8,25 +8,25 @@ import {
   Spin,
 } from 'antd';
 import { useEffect, useState } from 'react';
-import DocumentTypeForm from './DocumentTypeForm';
 import {
-  getDocumentTypes,
-  createDocumentType,
-  updateDocumentType,
-  deleteDocumentType,
-} from '@/services/prompt-dashboard/documentTypeService';
-import { DocumentType } from '@/model/DocumentModels';
+  getAssessmentAreas,
+  createAssessmentArea,
+  updateAssessmentArea,
+  deleteAssessmentArea,
+} from '@/services/prompt-dashboard/assessmentAreaService';
+import { AssessmentArea } from '@/model/AssessmentAreaModel';
 import { removeEmptyFields } from '@/utils/helpers';
+import AssessmentAreaForm from './AssessmentAreaForm';
 
 const { Title, Text } = Typography;
 
-const DocumentTypes = () => {
+const AssessmentAreas = () => {
   const [search, setSearch] = useState('');
-  const [data, setData] = useState<DocumentType[]>([]);
+  const [data, setData] = useState<AssessmentArea[]>([]);
   const [loading, setLoading] = useState(true);
   const [modalVisible, setModalVisible] = useState(false);
   const [formMode, setFormMode] = useState<'add' | 'edit'>('add');
-  const [selectedDoc, setSelectedDoc] = useState<DocumentType | null>(null);
+  const [selectedArea, setSelectedArea] = useState<AssessmentArea | null>(null);
 
   useEffect(() => {
     fetchData();
@@ -35,10 +35,10 @@ const DocumentTypes = () => {
   const fetchData = async () => {
     try {
       setLoading(true);
-      const docs = await getDocumentTypes();
-      setData(docs);
+      const areas = await getAssessmentAreas();
+      setData(areas);
     } catch (error) {
-      message.error('Failed to load document types');
+      message.error('Failed to load assessment areas');
     } finally {
       setLoading(false);
     }
@@ -46,31 +46,30 @@ const DocumentTypes = () => {
 
   const showAddModal = () => {
     setFormMode('add');
-    setSelectedDoc(null);
+    setSelectedArea(null);
     setModalVisible(true);
   };
 
-  const handleRowClick = (record: DocumentType) => {
+  const handleRowClick = (record: AssessmentArea) => {
     setFormMode('edit');
-    setSelectedDoc(record);
+    setSelectedArea(record);
     setModalVisible(true);
   };
 
-  const handleSubmit = async (doc: DocumentType) => {
+  const handleSubmit = async (area: AssessmentArea) => {
+    const cleanedArea = removeEmptyFields(area);
 
-    const cleanedDoc = removeEmptyFields(doc);
-    
     try {
       if (formMode === 'add') {
-        const createdDoc = await createDocumentType(cleanedDoc as DocumentType);
-        setData((prev) => [...prev, createdDoc]);
-        message.success('Document type created');
+        const created = await createAssessmentArea(cleanedArea as AssessmentArea);
+        setData((prev) => [...prev, created]);
+        message.success('Assessment area created');
       } else {
-        const updatedDoc = await updateDocumentType(cleanedDoc as DocumentType);
+        const updated = await updateAssessmentArea(cleanedArea as AssessmentArea);
         setData((prev) =>
-          prev.map((d) => (d.doc_type_id === updatedDoc.doc_type_id ? updatedDoc : d))
+          prev.map((a) => (a.assessment_id === updated.assessment_id ? updated : a))
         );
-        message.success('Document type updated');
+        message.success('Assessment area updated');
       }
     } catch (err) {
       message.error('Operation failed');
@@ -81,19 +80,19 @@ const DocumentTypes = () => {
 
   const handleDelete = async (id: number) => {
     try {
-      await deleteDocumentType(id);
-      setData((prev) => prev.filter((doc) => doc.doc_type_id !== id));
-      message.success('Document type deleted');
+      await deleteAssessmentArea(id);
+      setData((prev) => prev.filter((area) => area.assessment_id !== id));
+      message.success('Assessment area deleted');
     } catch (err) {
-      message.error('Failed to delete document type');
+      message.error('Failed to delete assessment area');
     }
   };
 
   const columns = [
     {
       title: 'Name',
-      dataIndex: 'doc_type_name',
-      key: 'doc_type_name',
+      dataIndex: 'assessment_name',
+      key: 'assessment_name',
     },
     {
       title: 'Description',
@@ -113,7 +112,7 @@ const DocumentTypes = () => {
     {
       title: 'Actions',
       key: 'actions',
-      render: (_: any, record: DocumentType) => (
+      render: (_: any, record: AssessmentArea) => (
         <div className="flex gap-4">
           <Button
             type="link"
@@ -127,10 +126,10 @@ const DocumentTypes = () => {
           </Button>
 
           <Popconfirm
-            title="Are you sure to delete this document type?"
+            title="Are you sure to delete this assessment area?"
             onConfirm={(e) => {
               e?.stopPropagation();
-              handleDelete(record.doc_type_id);
+              handleDelete(record.assessment_id!);
             }}
             onCancel={(e) => e?.stopPropagation()}
             okText="Yes"
@@ -152,20 +151,20 @@ const DocumentTypes = () => {
 
   return (
     <div className="p-6">
-      <Title level={2}>Policy Dashboard</Title>
+      <Title level={2}>Assessment Areas</Title>
       <Text type="secondary" className="mb-4 block">
-        Manage Document Types
+        Manage Assessment Areas
       </Text>
 
       <div className="flex justify-between items-center mb-4">
         <Input.Search
-          placeholder="Search document types..."
+          placeholder="Search assessment areas..."
           className="w-1/2 mr-4"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
         <Button type="primary" onClick={showAddModal}>
-          Add Document Type
+          Add Assessment Area
         </Button>
       </div>
 
@@ -177,9 +176,9 @@ const DocumentTypes = () => {
         <Table
           columns={columns}
           dataSource={data.filter((d) =>
-            d.doc_type_name.toLowerCase().includes(search.toLowerCase())
+            d.assessment_name?.toLowerCase().includes(search.toLowerCase())
           )}
-          rowKey="doc_type_id"
+          rowKey="assessment_id"
           pagination={false}
           onRow={(record) => ({
             onClick: () => handleRowClick(record),
@@ -187,15 +186,15 @@ const DocumentTypes = () => {
         />
       )}
 
-      <DocumentTypeForm
+      <AssessmentAreaForm
         visible={modalVisible}
         onClose={() => setModalVisible(false)}
         onSubmit={handleSubmit}
         mode={formMode}
-        initialData={selectedDoc ?? undefined}
+        initialData={selectedArea ?? undefined}
       />
     </div>
   );
 };
 
-export default DocumentTypes;
+export default AssessmentAreas;

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import Sidebar from '../components/prompts-dashboard/Sidebar';
 import DocumentTypes from '../components/prompts-dashboard/DocumentTypes';
-import AssessmentCriteria from '../components/prompts-dashboard/AssessmentCriteria';
+import AssessmentArea from '../components/prompts-dashboard/AssessmentArea';
 import Prompts from '../components/prompts-dashboard/Prompts';
 import HierarchyView from '../components/prompts-dashboard/HierarchyView';
 
@@ -12,8 +12,8 @@ const AdminDashboard = () => {
     switch (selectedKey) {
       case 'document-types':
         return <DocumentTypes />;
-      case 'assessment-criteria':
-        return <AssessmentCriteria />;
+      case 'assessment-area':
+        return <AssessmentArea />;
       case 'prompts':
         return <Prompts />;
       case 'hierarchy-view':

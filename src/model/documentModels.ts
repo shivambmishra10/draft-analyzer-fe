@@ -26,9 +26,13 @@ export interface SummaryResponse {
 }
 
 export interface DocumentType {
-  id: string;
-  name: string;
+  doc_type_id: number;
+  doc_type_name: string;
   description: string;
+  created_by: string;
+  created_on: string; 
+  updated_by: string | null;
+  updated_on: string | null;
 }
 
 export interface AssessmentPrompt {

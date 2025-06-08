@@ -15,7 +15,7 @@ import { CloudUploadOutlined } from "@ant-design/icons";
 import { getDocumentTypes, uploadDocument } from "@/services/documentService";
 import { useDocumentStore } from "@/store/documentStore";
 import AssessmentsSection from "@/components/AssessmentsSection";
-import { DocumentType, UploadResponse } from "@/model/documentModels";
+import { DocumentType, UploadResponse } from "@/model/DocumentModels";
 
 const { Dragger } = Upload;
 const { Title, Paragraph, Text } = Typography;
@@ -190,14 +190,14 @@ export default function UploadSection() {
               style={{ width: "100%", marginTop: 8 }}
               onChange={(value) => {
                 const selected =
-                  documentTypes.find((dt) => dt.id === value) || null;
+                  documentTypes.find((dt) => dt.doc_type_id === value) || null;
                 setSelectedDocType(selected);
               }}
-              value={selectedDocType?.id}
+              value={selectedDocType?.doc_type_id}
             >
               {documentTypes.map((type) => (
-                <Option key={type.id} value={type.id}>
-                  {type.name}
+                <Option key={type.doc_type_id} value={type.doc_type_id}>
+                  {type.doc_type_name}
                 </Option>
               ))}
             </Select>
