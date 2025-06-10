@@ -1,6 +1,8 @@
-import { Modal, Input, Button } from 'antd';
+import { Modal, Input, Button, Card, Checkbox } from 'antd';
 import { useEffect, useState } from 'react';
 import { AssessmentArea } from '@/model/AssessmentAreaModel';
+import { getPrompts } from '@/services/prompt-dashboard/promptService';
+import { Prompt } from '@/model/PromptModel';
 
 interface Props {
   visible: boolean;
@@ -25,8 +27,9 @@ const AssessmentAreaForm: React.FC<Props> = ({
     created_on: '',
     updated_by: '',
     updated_on: '',
+    prompt_ids: [],
   });
-
+  const [promptOptions, setPromptOptions] = useState<Prompt[]>([]);
   useEffect(() => {
     if (mode === 'edit' && initialData) {
       setFormData(initialData);
@@ -36,11 +39,25 @@ const AssessmentAreaForm: React.FC<Props> = ({
         description: '',
         created_by: '',
         updated_by: '',
+        prompt_ids: [],
       } as AssessmentArea);
     }
   }, [mode, initialData]);
 
-  const handleChange = (field: keyof AssessmentArea, value: string) => {
+  useEffect(() => {
+    const fetchPrompts = async () => {
+      try {
+        const result = await getPrompts();
+        setPromptOptions(result);
+      } catch (error) {
+        console.error('Failed to fetch prompts:', error);
+      }
+    };
+
+    fetchPrompts();
+  }, []);
+  
+  const handleChange = (field: keyof AssessmentArea, value: string | number[]) => {
     setFormData({ ...formData, [field]: value });
   };
 
@@ -89,6 +106,24 @@ const AssessmentAreaForm: React.FC<Props> = ({
             value={formData.updated_by}
             onChange={(e) => handleChange('updated_by', e.target.value)}
           />
+        </div>
+
+        <div>
+          <label className="block font-medium mb-2">Link Prompts</label>
+          <Card className="border rounded-lg p-4 max-h-48 overflow-y-auto">
+            <Checkbox.Group
+              value={formData.prompt_ids || []}
+              onChange={(val) => handleChange('prompt_ids', val)}
+            >
+              <div className="flex flex-col gap-2">
+                {promptOptions.map((prompt) => (
+                  <Checkbox key={prompt.prompt_id} value={prompt.prompt_id}>
+                    {prompt.question}
+                  </Checkbox>
+                ))}
+              </div>
+            </Checkbox.Group>
+          </Card>
         </div>
 
         <div className="flex justify-end gap-2 mt-4">

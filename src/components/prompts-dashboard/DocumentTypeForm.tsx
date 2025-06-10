@@ -1,4 +1,4 @@
-import { Modal, Input, Button, Select, Card, Checkbox } from 'antd';
+import { Modal, Input, Button, Card, Checkbox } from 'antd';
 import { useEffect, useState } from 'react';
 import { DocumentType } from '@/model/DocumentModels';
 import { AssessmentArea } from '@/model/AssessmentAreaModel';

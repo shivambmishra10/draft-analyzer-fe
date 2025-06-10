@@ -1,4 +1,3 @@
-
 export interface AssessmentArea {
   assessment_id?: number;
   assessment_name?: string;
@@ -7,4 +6,5 @@ export interface AssessmentArea {
   created_on?: string;  
   updated_by?: string;
   updated_on?: string;
+  prompt_ids: number[] | null;
 }
