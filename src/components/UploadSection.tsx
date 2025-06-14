@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   Upload,
   Progress,
@@ -8,31 +8,28 @@ import {
   Space,
   Modal,
   message,
-  Select,
 } from "antd";
 import type { UploadProps } from "antd";
 import { CloudUploadOutlined } from "@ant-design/icons";
-import { getDocumentTypes, uploadDocument } from "@/services/documentService";
+import { createDocument, uploadDocument } from "@/services/documentService";
 import { useDocumentStore } from "@/store/documentStore";
 import AssessmentsSection from "@/components/AssessmentsSection";
 import { DocumentType, UploadResponse } from "@/model/DocumentModels";
+import DocumentMetadataCard from "./upload-section/DocumentMetadataCard";
+import DocumentTypeSelector from "./upload-section/DocumentTypeSelector";
 
 const { Dragger } = Upload;
 const { Title, Paragraph, Text } = Typography;
-const { Option } = Select;
 
 export default function UploadSection() {
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [isUploading, setIsUploading] = useState(false);
-  const [fileName, setFileName] = useState<string | null>(null);
   const [showSummarize, setShowSummarize] = useState(false);
   const [selectedDocType, setSelectedDocType] = useState<DocumentType | null>(
     null
   );
   const [error, setError] = useState<string | null>(null);
-  const [documentTypes, setDocumentTypes] = useState<DocumentType[]>([]);
-  const [isLoadingTypes, setIsLoadingTypes] = useState(false);
 
   const setSummaryRequested = useDocumentStore(
     (state) => state.setSummaryRequested
@@ -41,61 +38,67 @@ export default function UploadSection() {
     (state) => state.setUploadResponse
   );
 
-  useEffect(() => {
-    loadDocumentTypes();
-  }, []);
+  const handleUpload = async (file: File) => {
+    setIsUploading(true);
+    setUploadProgress(0);
+    setSummaryRequested(false);
+    setSelectedDocType(null);
 
-  const loadDocumentTypes = async () => {
+    const sessionId = "abc123"; // Replace with actual sessionId logic
+    const userId = "user456"; // Replace with actual userId logic
+    const documentName = file.name;
+
     try {
-      const types = await getDocumentTypes();
-      setDocumentTypes(types);
-    } catch (error) {
-      console.error("Failed to load document types:", error);
+      const res: UploadResponse = await uploadDocument({
+        file,
+        sessionId,
+        userId,
+        documentName,
+      });
+
+      if (res.warning && res.new_document) {
+        Modal.confirm({
+          title: "Document Already Exists",
+          content:
+            res.warning +
+            " Would you like to use the existing document or create a new one?",
+          okText: "Use Existing",
+          cancelText: "Create New",
+          onOk: () => {
+            setUploadResponse(res); // Use existing document
+            setShowSummarize(true);
+          },
+          onCancel: async () => {
+            try {
+              if (!res.new_document) {
+                throw new Error("No new uploaded document found.");
+              }
+              const created = await createDocument(res.new_document); // Call create API with new document
+              setUploadResponse(created);
+              setShowSummarize(true);
+            } catch (e) {
+              const errorMessage =
+                e instanceof Error
+                  ? e.message
+                  : "Failed to create new document.";
+              setError(errorMessage);
+              message.error(errorMessage);
+              resetUpload();
+            }
+          },
+        });
+      } else {
+        setUploadResponse(res);
+        setShowSummarize(true);
+      }
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : "Upload failed";
+      setError(errorMessage);
+      message.error(errorMessage);
     } finally {
-      setIsLoadingTypes(false);
+      setIsUploading(false);
     }
   };
-
-  const handleUpload = async (file: File) => {
-  setIsUploading(true);
-  setUploadProgress(0);
-  setSummaryRequested(false);
-  setSelectedDocType(null);
-
-  const sessionId = "abc123"; // Replace with actual sessionId logic
-  const userId = "user456";   // Replace with actual userId logic
-  const documentName = file.name;
-
-  try {
-    const res: UploadResponse = await uploadDocument({
-      file,
-      sessionId,
-      userId,
-      documentName,
-    });
-
-    setFileName(res.fileName);
-    setUploadResponse(res);
-
-    if (res.warning) {
-      Modal.confirm({
-        title: "Warning",
-        content: res.warning + " Do you want to continue?",
-        onOk: () => setShowSummarize(true),
-        onCancel: () => resetUpload(),
-      });
-    } else {
-      setShowSummarize(true);
-    }
-  } catch (err) {
-    const errorMessage = err instanceof Error ? err.message : "Upload failed";
-    setError(errorMessage);
-    message.error(errorMessage);
-  } finally {
-    setIsUploading(false);
-  }
-};
-
 
   const proceedWithSummarization = () => {
     setSummaryRequested(true);
@@ -107,7 +110,6 @@ export default function UploadSection() {
 
   const resetUpload = () => {
     setUploadedFile(null);
-    setFileName(null);
     setShowSummarize(false);
     setUploadProgress(0);
     setSelectedDocType(null);
@@ -162,13 +164,6 @@ export default function UploadSection() {
         </p>
       </Dragger>
 
-      {uploadedFile && (
-        <div className="text-center mt-4">
-          <Text strong>Uploaded File:</Text>{" "}
-          <Text code>{uploadedFile.name}</Text>
-        </div>
-      )}
-
       {isUploading && (
         <div className="w-full mt-4">
           <Progress percent={uploadProgress} status="active" />
@@ -183,25 +178,16 @@ export default function UploadSection() {
 
       {!isUploading && uploadedFile && showSummarize && (
         <>
-          <div className="w-full max-w-sm mt-4">
-            <Text strong>Select Document Type:</Text>
-            <Select
-              placeholder="Choose document type"
-              style={{ width: "100%", marginTop: 8 }}
-              onChange={(value) => {
-                const selected =
-                  documentTypes.find((dt) => dt.doc_type_id === value) || null;
-                setSelectedDocType(selected);
-              }}
-              value={selectedDocType?.doc_type_id}
-            >
-              {documentTypes.map((type) => (
-                <Option key={type.doc_type_id} value={type.doc_type_id}>
-                  {type.doc_type_name}
-                </Option>
-              ))}
-            </Select>
-          </div>
+          {useDocumentStore.getState().uploadResponse && (
+            <DocumentMetadataCard
+              document={
+                useDocumentStore.getState().uploadResponse as UploadResponse
+              }
+            />
+          )}
+
+          <DocumentTypeSelector onSelect={setSelectedDocType} />
+
           {selectedDocType && (
             <>
               <AssessmentsSection documentType={selectedDocType} />

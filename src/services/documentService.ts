@@ -8,11 +8,8 @@ const BASE_URL = "http://localhost:9000";
 export const uploadDocument = async (request: UploadRequest): Promise<UploadResponse> => {
   const formData = new FormData();
   formData.append("file", request.file);
-  formData.append("sessionId", request.sessionId);
-  formData.append("userId", request.userId);
-  formData.append("documentName", request.documentName);
 
-  const response = await fetch(`${BASE_URL}/upload`, {
+  const response = await fetch(`${BASE_URL}/upload_policy`, {
     method: "POST",
     body: formData,
   });
@@ -24,6 +21,10 @@ export const uploadDocument = async (request: UploadRequest): Promise<UploadResp
 
   return response.json();
 }
+export const createDocument = async (newDocument: UploadResponse): Promise<UploadResponse> => {
+  const response = await axios.post(`${BASE_URL}/create_document`, newDocument);
+  return response.data;
+};
 
 export const fetchSummary = async (request: SummaryRequest): Promise<SummaryResponse> => {
   const response = await axios.post<SummaryResponse>(`${BASE_URL}/summarize`, request);
@@ -32,12 +33,12 @@ export const fetchSummary = async (request: SummaryRequest): Promise<SummaryResp
 
 
 export const getDocumentTypes = async (): Promise<DocumentType[]> => {
-  const response = await axios.get<DocumentType[]>(`${BASE_URL}/document-types`);
+  const response = await axios.get<DocumentType[]>(`${BASE_URL}/document_types`);
   return response.data;
 };
 
-export const getAssessmentsByDocumentType = async (typeId: string): Promise<Assessment[]> => {
-  const response = await axios.get<Assessment[]>(`${BASE_URL}/document-types/${typeId}/assessments`);
+export const getAssessmentsByDocumentType = async (doc_type_id: number): Promise<Assessment[]> => {
+  const response = await axios.get<Assessment[]>(`${BASE_URL}/document_types/${doc_type_id}/assessments`);
   return response.data;
 };
 

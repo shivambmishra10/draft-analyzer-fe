@@ -9,14 +9,18 @@ export interface UploadRequest {
 
 // Upload response
 export interface UploadResponse {
-  docId: string;
-  fileName: string;
+  doc_id: string;
+  file_name: string;
+  file_type: string;
+  number_of_pages: number;
+  doc_size_kb: number;
   warning?: string | null;
+  new_document?: UploadResponse | null;
 }
 
 // Summarize request
 export interface SummaryRequest {
-  docId: string;
+  doc_id: string;
 }
 
 // Summarize response (used in InsightSection)

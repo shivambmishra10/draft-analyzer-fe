@@ -127,7 +127,16 @@ const assessmentPrompts = [
   },
 ];
 
+uploaded_document = {
+      "doc_id": "feee3807cadc5677d4fd630076e876a369253b1b39140f8caf6c256f370214bf_2",
+      "file_name": "New Draft File.pdf",
+      "file_type": "application/pdf",
+      "number_of_pages": 12,
+      "doc_size_kb": 568
+    };
+
 module.exports = {
   documentTypes,
-  assessmentPrompts
+  assessmentPrompts,
+  uploaded_document
 };
