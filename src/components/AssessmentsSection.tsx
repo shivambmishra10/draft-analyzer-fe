@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import AssessmentFramework from './AssessmentFramework';
-import { Assessment, DocumentType } from '@/model/documentModels';
 import { getAssessmentsByDocumentType } from '@/services/documentService';
 import Paragraph from 'antd/es/typography/Paragraph';
 import Title from 'antd/es/typography/Title';
 import { Card } from 'antd';
+import { Assessment, DocumentType } from '@/model/DocumentModels';
 
 const AssessmentModal: React.FC<{ documentType: DocumentType }> = ({ documentType }) => {
   const [assessmentData, setAssessmentData] = useState<Assessment[]>([]);
@@ -14,7 +14,7 @@ const AssessmentModal: React.FC<{ documentType: DocumentType }> = ({ documentTyp
   useEffect(() => {
     const fetchAssessments = async () => {
       try {
-        const data = await getAssessmentsByDocumentType(documentType.id);
+        const data = await getAssessmentsByDocumentType(documentType.doc_type_id);
         setAssessmentData(data);
       } catch (err) {
         setError('Failed to fetch assessments');
@@ -24,7 +24,7 @@ const AssessmentModal: React.FC<{ documentType: DocumentType }> = ({ documentTyp
     };
 
     fetchAssessments();
-  }, [documentType.id]);
+  }, [documentType.doc_type_id]);
 
   if (loading) return <div>Loading...</div>;
   if (error) return <div>{error}</div>;
@@ -43,10 +43,10 @@ const AssessmentModal: React.FC<{ documentType: DocumentType }> = ({ documentTyp
     >
       <div className="text-center">
         <Title level={3} style={{ margin: 0, color: "#1f2937" }}>
-          Assessment Framework for {documentType.name}
+          Assessment Framework for {documentType.doc_type_name}
         </Title>
         <Paragraph type="secondary">
-          This framework outlines the key assessments for the {documentType.name} document type.
+          This framework outlines the key assessments for the {documentType.doc_type_name} document type.
         </Paragraph>
       </div>
       {assessmentData.map((item, index) => (

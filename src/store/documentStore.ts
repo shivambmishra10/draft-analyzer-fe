@@ -1,4 +1,4 @@
-import { UploadResponse } from '@/model/documentModels';
+import { UploadResponse } from '@/model/DocumentModels';
 import { create } from 'zustand';
 
 interface DocumentState {

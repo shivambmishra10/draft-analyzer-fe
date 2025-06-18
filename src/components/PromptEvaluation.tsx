@@ -13,8 +13,8 @@ const getScoreTagColor = (score: number) => {
 };
 
 const PromptEvaluation: React.FC = () => {
-  const fileName = useDocumentStore((state) => state.uploadResponse?.fileName);
-  const docId = useDocumentStore((state) => state.uploadResponse?.docId);
+  const fileName = useDocumentStore((state) => state.uploadResponse?.file_name);
+  const docId = useDocumentStore((state) => state.uploadResponse?.doc_id);
   const [evaluations, setEvaluations] = useState<EvaluationItem[]>([]);
   const [loading, setLoading] = useState(false);
 

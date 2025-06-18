@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const multer = require('multer');
-const { documentTypes, assessmentPrompts } = require('./document-types');
+const { documentTypes, assessmentPrompts, uploaded_document } = require('./document-types');
 
 const app = express();
 const PORT = 9000;
@@ -14,7 +14,7 @@ const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
 // Upload Endpoint
-app.post('/upload', upload.single('file'), (req, res) => {
+app.post('/upload_policy', upload.single('file'), (req, res) => {
   const file = req.file;
 
   if (!file) return res.status(400).json({ error: 'File is required' });
@@ -27,7 +27,25 @@ app.post('/upload', upload.single('file'), (req, res) => {
 
   // Optional delay
   setTimeout(() => {
-    res.json({ fileName, docId, warning });
+    res.json({
+      "doc_id": "feee3807cadc5677d4fd630076e876a369253b1b39140f8caf6c256f370214bf",
+      "file_name": "DRAFTDISCLOSURECLIMATERELATEDFINANCIALRISKS20249FBE3A566E7F487EBF9974642E6CCDB1 (1).pdf",
+      "file_type": "application/pdf",
+      "number_of_pages": 12,
+      "doc_size_kb": 568,
+      warning,
+      new_document: uploaded_document
+    });
+  }, 100); // 1 sec delay
+});
+
+// Create Document Endpoint
+app.post('/create_document', (req, res) => {
+  const newDocument = req.body;
+  if (!newDocument) return res.status(400).json({ error: "Document data is required" });
+
+  setTimeout(() => {
+    res.json(newDocument);
   }, 100); // 1 sec delay
 });
 
@@ -123,11 +141,11 @@ app.post('/score', (req, res) => {
 });
 
 // Document type endpoints
-app.get('/document-types', (req, res) => {
+app.get('/document_types', (req, res) => {
   res.json(documentTypes);
 });
 
-app.get('/document-types/:typeId/assessments', (req, res) => {
+app.get('/document_types/:typeId/assessments', (req, res) => {
   const { typeId } = req.params;
   //const typeAssessments = assessmentPrompts[typeId] || [];
   res.json(assessmentPrompts);
@@ -137,7 +155,7 @@ app.get('/document-types/:typeId/assessments', (req, res) => {
 app.get('/assessments/:assessmentId/prompts', (req, res) => {
   const { assessmentId } = req.params;
   let prompts = [];
-  
+
   // Search through all document types for the assessment
   Object.values(assessmentPrompts).forEach(assessments => {
     const assessment = assessments.find(a => a.id === parseInt(assessmentId));
@@ -145,7 +163,7 @@ app.get('/assessments/:assessmentId/prompts', (req, res) => {
       prompts = assessment.prompts;
     }
   });
-  
+
   res.json(prompts);
 });
 

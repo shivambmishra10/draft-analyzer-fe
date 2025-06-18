@@ -16,13 +16,13 @@ import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 import { fetchSummary } from "@/services/documentService";
 import { useDocumentStore } from "@/store/documentStore";
-import { SummaryResponse } from "@/model/documentModels";
+import { SummaryResponse } from "@/model/DocumentModels";
 
 const { Title, Paragraph } = Typography;
 
 const InsightSection: React.FC = () => {
-  const fileName = useDocumentStore((state) => state.uploadResponse?.fileName);
-  const docId = useDocumentStore((state) => state.uploadResponse?.docId);
+  const fileName = useDocumentStore((state) => state.uploadResponse?.file_name);
+  const docId = useDocumentStore((state) => state.uploadResponse?.doc_id);
   const summaryRequested = useDocumentStore((state) => state.summaryRequested);
 
   const [loading, setLoading] = useState(false);
@@ -40,7 +40,7 @@ const InsightSection: React.FC = () => {
           setLoading(false);
           return;
         }
-        const response = await fetchSummary({ docId });
+        const response = await fetchSummary({ doc_id: docId });
         setSummaryData(response);
       } catch (err) {
         message.error("Failed to fetch summary.");
