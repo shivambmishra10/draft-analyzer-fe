@@ -41,7 +41,7 @@ const PromptsForm: React.FC<Props> = ({ visible, onClose, onSubmit, mode, initia
       title={mode === 'edit' ? 'Edit Prompt' : 'Add New Prompt'}
       onCancel={onClose}
       footer={null}
-      width={600}
+      width={1000}
     >
       <div className="space-y-5">
         <div>

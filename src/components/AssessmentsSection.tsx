@@ -6,7 +6,7 @@ import { useAssessmentAreaStore } from "@/store/assessmentAreaStore";
 import { Card, message } from "antd";
 import { useEffect } from "react";
 
-const AssessmentModal: React.FC<{ documentType: DocumentType }> = ({
+const AssessmentSection: React.FC<{ documentType: DocumentType }> = ({
   documentType,
 }) => {
   const { assessmentAreas, fetchAssessmentAreas, getAssessmentAreaById } =
@@ -33,10 +33,11 @@ const AssessmentModal: React.FC<{ documentType: DocumentType }> = ({
         </Paragraph>
       </div>
       {(documentType.assessment_ids ?? []).map((item, index) => {
-        const assessment = getAssessmentAreaById(item);
+        const assessment = getAssessmentAreaById(Number(item));
         return assessment ? (
           <AssessmentFramework
-            key={index}
+            key={assessment.assessment_id}
+            reactKey={index}
             assessment={assessment}
             index={index + 1}
           />
@@ -46,4 +47,4 @@ const AssessmentModal: React.FC<{ documentType: DocumentType }> = ({
   );
 };
 
-export default AssessmentModal;
+export default AssessmentSection;

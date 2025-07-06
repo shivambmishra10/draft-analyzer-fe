@@ -1,8 +1,8 @@
 import React from 'react';
 import { Modal } from 'antd';
-import InsightSection from './InsightSection';
-import PromptEvaluation from './PromptEvaluation';
-import ScoreAnalysis from './ScoreAnalysis';
+import InsightSection from '../InsightSection';
+import PromptEvaluation from '../PromptEvaluation';
+import ScoreAnalysis from '../ScoreAnalysis';
 import { type HistoryDocument } from '@/store/historyStore';
 
 interface AnalysisModalProps {

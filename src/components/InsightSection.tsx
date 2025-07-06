@@ -16,8 +16,8 @@ import { summarizeDocument } from "@/services/documentService";
 import { useDocumentStore } from "@/store/documentStore";
 import { SummaryResponse } from "@/model/DocumentModels";
 import { useProgressTrackerStore } from "@/store/progressTrackerStore";
-import { ProgressStepStatus } from "./constants/ProgressStatus";
-import { ProgressStepKey } from "./constants/ProgressStepKey";
+import { ProgressStepStatus } from "../constants/ProgressStatus";
+import { ProgressStepKey } from "../constants/ProgressStepKey";
 
 const { Title, Paragraph } = Typography;
 
@@ -29,11 +29,12 @@ const InsightSection: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [summaryData, setSummaryData] = useState<SummaryResponse | null>(null);
   const summaryRef = useRef<HTMLDivElement>(null);
+  const updateStepStatus = useProgressTrackerStore((state) => state.updateStepStatus);
 
   useEffect(() => {
     const getSummary = async () => {
       if (!summaryRequested || !fileName) return;
-      useProgressTrackerStore.getState().updateStepStatus(ProgressStepKey.Summarize, ProgressStepStatus.Pending);
+      updateStepStatus(ProgressStepKey.Summarize, ProgressStepStatus.InProgress);
       setLoading(true);
       try {
         if (!docId) {
@@ -43,17 +44,17 @@ const InsightSection: React.FC = () => {
         }
         const response = await summarizeDocument({ doc_id: docId });
         setSummaryData(response);
-        useProgressTrackerStore.getState().updateStepStatus(ProgressStepKey.Summarize, ProgressStepStatus.Completed);
+        updateStepStatus(ProgressStepKey.Summarize, ProgressStepStatus.Completed);
       } catch (err) {
         message.error("Failed to fetch summary.");
-        useProgressTrackerStore.getState().updateStepStatus(ProgressStepKey.Summarize, ProgressStepStatus.Error);
+        updateStepStatus(ProgressStepKey.Summarize, ProgressStepStatus.Error);
       } finally {
         setLoading(false);
       }
     };
 
     getSummary();
-  }, [summaryRequested, fileName]);
+  }, [summaryRequested, fileName, updateStepStatus]);
 
   const handleDownloadPDF = async () => {
     if (!summaryRef.current) return;

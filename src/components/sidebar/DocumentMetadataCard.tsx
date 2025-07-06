@@ -23,7 +23,7 @@ const DocumentMetadataCard: React.FC<{ document: UploadResponse }> = ({
     >
       <Descriptions
         column={1}
-        labelStyle={{ fontWeight: 500, color: "#4a4a4a" }}
+        styles={{ label: { fontWeight: 500, color: "#4a4a4a" } }}
         size="small"
       >
         <Descriptions.Item label="Document ID">

@@ -1,4 +1,3 @@
-// stores/progressTrackerStore.ts
 import { create } from "zustand";
 import {
   UploadIcon,
@@ -8,8 +7,8 @@ import {
   BarChart4,
   Download,
 } from "lucide-react";
-import { ProgressStepStatus } from "@/components/constants/ProgressStatus";
-import { ProgressStepKey } from "@/components/constants/ProgressStepKey";
+import { ProgressStepStatus } from "@/constants/ProgressStatus";
+import { ProgressStepKey } from "@/constants/ProgressStepKey";
 
 export interface Step {
   key: ProgressStepKey;

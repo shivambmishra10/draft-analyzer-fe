@@ -14,9 +14,9 @@ import AssessmentsSection from "@/components/AssessmentsSection";
 import { DocumentType, UploadResponse } from "@/model/DocumentModels";
 import DocumentTypeSelector from "./DocumentTypeSelector";
 import { uploadDocument } from "@/services/documentService";
-import { ProgressStepKey } from "@/components/constants/ProgressStepKey";
+import { ProgressStepKey } from "@/constants/ProgressStepKey";
 import { useProgressTrackerStore } from "@/store/progressTrackerStore";
-import { ProgressStepStatus } from "../constants/ProgressStatus";
+import { ProgressStepStatus } from "../../constants/ProgressStatus";
 
 const { Dragger } = Upload;
 const { Title, Paragraph, Text } = Typography;
@@ -117,7 +117,7 @@ export default function UploadSection() {
           </p>
         </Dragger>
       </div>
-
+      <div className="text-center mt-2">
       {isUploading && (
         <div className="w-11/12 mt-4 flex items-center space-x-3">
           <Spin />
@@ -130,7 +130,7 @@ export default function UploadSection() {
           <Text type="danger">{error}</Text>
         </div>
       )}
-
+      </div>
       {!isUploading && uploadedFile && showSummarize && (
         <div className="w-full px-6 flex flex-col items-center gap-6">
 

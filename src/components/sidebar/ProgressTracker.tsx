@@ -3,7 +3,7 @@ import {
 } from "@/store/progressTrackerStore";
 import { Card } from "antd";
 import { CheckCircle2, Loader2, XCircle } from "lucide-react";
-import { ProgressStepStatus } from "../constants/ProgressStatus";
+import { ProgressStepStatus } from "../../constants/ProgressStatus";
 
 const statusDot = (status: ProgressStepStatus) => {
   switch (status) {

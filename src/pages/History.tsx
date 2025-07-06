@@ -1,7 +1,7 @@
 import React from "react";
 import { Typography } from "antd";
-import DocumentList from "@/components/DocumentList";
-import AnalysisModal from "@/components/AnalysisModal";
+import DocumentList from "@/components/history/DocumentList";
+import AnalysisModal from "@/components/history/AnalysisModal";
 import { useHistoryStore } from "@/store/historyStore";
 
 const { Title, Text } = Typography;
