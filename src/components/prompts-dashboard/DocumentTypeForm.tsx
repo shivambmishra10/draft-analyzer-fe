@@ -1,7 +1,8 @@
-import { Modal, Input, Button, Card, Checkbox } from 'antd';
+import { Modal, Input, Button, message } from 'antd';
 import { useEffect, useState } from 'react';
 import { DocumentType } from '@/model/DocumentModels';
 import { useAssessmentAreaStore } from '@/store/assessmentAreaStore';
+import SearchableCheckboxList from './SearchableCheckboxList';
 
 interface Props {
   visible: boolean;
@@ -11,61 +12,71 @@ interface Props {
   initialData?: DocumentType;
 }
 
+type DocumentTypeFormState = Omit<DocumentType, 'assessment_ids'> & {
+  assessment_ids: string[];
+};
+
+const getEmptyFormData = (): DocumentTypeFormState => ({
+  doc_type_id: 0,
+  doc_type_name: '',
+  description: '',
+  created_by: 'Admin',
+  created_on: '',
+  updated_by: '',
+  updated_on: '',
+  assessment_ids: [],
+});
+
 const DocumentTypeForm: React.FC<Props> = ({
   visible,
   onClose,
   onSubmit,
   mode,
-  initialData
+  initialData,
 }) => {
-  const [formData, setFormData] = useState<DocumentType>({
-    doc_type_id: 0,
-    doc_type_name: '',
-    description: '',
-    created_by: 'Admin',
-    created_on: '',
-    updated_by: '',
-    updated_on: '',
-    assessment_ids: [],
-  });
+  const [formData, setFormData] = useState<DocumentTypeFormState>(getEmptyFormData());
+  const [search, setSearch] = useState('');
+
+  const {
+    assessmentAreas,
+    fetchAssessmentAreas,
+  } = useAssessmentAreaStore();
 
   useEffect(() => {
     if (mode === 'edit' && initialData) {
-      setFormData(initialData);
-    } else if (mode === 'add') {
       setFormData({
-        doc_type_id: 0,
-        doc_type_name: '',
-        description: '',
-        created_by: 'Admin',
-        created_on: '',
-        updated_by: '',
-        updated_on: '',
-        assessment_ids: [],
+        ...initialData,
+        assessment_ids: initialData.assessment_ids?.map(String) || [],
       });
+    } else {
+      setFormData(getEmptyFormData());
     }
   }, [mode, initialData]);
 
-  const {
-      assessmentAreas,
-      fetchAssessmentAreas,
-    } = useAssessmentAreaStore();
-  
-    // Fetch assessment areas on mount
-    useEffect(() => {
-      if (assessmentAreas.length === 0) {
-        fetchAssessmentAreas().catch((error) => {
-          console.error("Failed to load assessment areas:", error);
-        });
-      }
-    }, []);
+  useEffect(() => {
+    if (assessmentAreas.length === 0) {
+      fetchAssessmentAreas().catch((error) => {
+        console.error('Failed to load assessment areas:', error);
+      });
+    }
+  }, [fetchAssessmentAreas, assessmentAreas.length]);
 
-  const handleChange = (field: keyof DocumentType, value: any) => {
-    setFormData({ ...formData, [field]: value });
+  const handleChange = <K extends keyof DocumentTypeFormState>(field: K, value: DocumentTypeFormState[K]) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
   const handleSubmit = () => {
-    onSubmit(formData);
+    if (!formData.doc_type_name.trim()) {
+      message.warning('Please enter a document type name.');
+      return;
+    }
+
+    const payload: DocumentType = {
+      ...formData,
+      assessment_ids: formData.assessment_ids.map(Number),
+    };
+
+    onSubmit(payload);
     onClose();
   };
 
@@ -75,7 +86,7 @@ const DocumentTypeForm: React.FC<Props> = ({
       title={mode === 'edit' ? 'Edit Document Type' : 'Add New Document Type'}
       onCancel={onClose}
       footer={null}
-      width={600}
+      width={1000}
     >
       <div className="space-y-5">
         <div>
@@ -95,24 +106,20 @@ const DocumentTypeForm: React.FC<Props> = ({
           />
         </div>
 
-        <div>
-        <label className="block font-medium mb-2">Link Assessment Areas</label>
-        <Card className="border rounded-lg p-4 max-h-48 overflow-y-auto">
-          <Checkbox.Group
-            value={formData.assessment_ids || []}
-            onChange={(val) => handleChange('assessment_ids', val)}
-          >
-            <div className="flex flex-col gap-2">
-              {assessmentAreas.map((area) => (
-                <Checkbox key={area.assessment_id} value={area.assessment_id}>
-                  {area.assessment_name}
-                </Checkbox>
-              ))}
-            </div>
-          </Checkbox.Group>
-        </Card>
-      </div>
-
+        <SearchableCheckboxList
+          title="Link Assessment Areas"
+          items={assessmentAreas
+            .filter((a) => a.assessment_id !== undefined && a.assessment_name !== undefined)
+            .map((a) => ({
+              id: a.assessment_id as number,
+              label: a.assessment_name as string,
+            }))
+          }
+          selectedIds={formData.assessment_ids}
+          onChange={(ids) => handleChange('assessment_ids', ids)}
+          search={search}
+          onSearchChange={setSearch}
+        />
 
         <div className="flex justify-end gap-2 mt-4">
           <Button onClick={onClose}>Cancel</Button>

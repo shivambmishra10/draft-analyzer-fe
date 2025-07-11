@@ -3,6 +3,9 @@ import { Card, Typography, Tag, Space, Spin, message } from "antd";
 import { EvaluationItem } from "@/model/EvaluationModels";
 import { fetchPromptEvaluations } from "@/services/documentService";
 import { useDocumentStore } from "@/store/documentStore";
+import { useProgressTrackerStore } from "@/store/progressTrackerStore";
+import { ProgressStepStatus } from "../constants/ProgressStatus";
+import { ProgressStepKey } from "../constants/ProgressStepKey";
 
 const { Title, Paragraph } = Typography;
 
@@ -17,16 +20,20 @@ const PromptEvaluation: React.FC = () => {
   const docId = useDocumentStore((state) => state.uploadResponse?.doc_id);
   const [evaluations, setEvaluations] = useState<EvaluationItem[]>([]);
   const [loading, setLoading] = useState(false);
+  const updateStepStatus = useProgressTrackerStore((state) => state.updateStepStatus);
 
   useEffect(() => {
     const fetchData = async () => {
       if (!fileName || !docId) return;
       setLoading(true);
+      updateStepStatus(ProgressStepKey.Evaluate, ProgressStepStatus.InProgress);
       try {
         const data = await fetchPromptEvaluations({ docId });
         setEvaluations(data.evaluations);
+        updateStepStatus(ProgressStepKey.Evaluate, ProgressStepStatus.Completed);
       } catch (err) {
         message.error("Failed to fetch evaluations.");
+        updateStepStatus(ProgressStepKey.Evaluate, ProgressStepStatus.Error);
       } finally {
         setLoading(false);
       }

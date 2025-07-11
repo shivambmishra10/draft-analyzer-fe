@@ -1,7 +1,8 @@
-import { Modal, Input, Button, Card, Checkbox } from 'antd';
+import { Modal, Input, Button } from 'antd';
 import { useEffect, useState } from 'react';
 import { AssessmentArea } from '@/model/AssessmentAreaModel';
 import { usePromptStore } from '@/store/promptStore';
+import SearchableCheckboxList from './SearchableCheckboxList';
 
 interface Props {
   visible: boolean;
@@ -11,6 +12,22 @@ interface Props {
   initialData?: AssessmentArea;
 }
 
+// Internal form state stores prompt_ids as strings for compatibility with Checkbox.Group
+type AssessmentAreaFormState = Omit<AssessmentArea, 'prompt_ids'> & {
+  prompt_ids: string[];
+};
+
+const getEmptyFormData = (): AssessmentAreaFormState => ({
+  assessment_id: 0,
+  assessment_name: '',
+  description: '',
+  created_by: 'Admin',
+  created_on: '',
+  updated_by: '',
+  updated_on: '',
+  prompt_ids: [],
+});
+
 const AssessmentAreaForm: React.FC<Props> = ({
   visible,
   onClose,
@@ -18,50 +35,43 @@ const AssessmentAreaForm: React.FC<Props> = ({
   mode,
   initialData,
 }) => {
-  const [formData, setFormData] = useState<AssessmentArea>({
-    assessment_id: 0,
-    assessment_name: '',
-    description: '',
-    created_by: '',
-    created_on: '',
-    updated_by: '',
-    updated_on: '',
-    prompt_ids: [],
-  });
-    const {
-      prompts,
-      fetchPrompts,
-    } = usePromptStore();
-  
-    // Fetch prompts on mount
-    useEffect(() => {
-      if (prompts.length === 0) {
-        fetchPrompts().catch((error) => {
-          console.error('Failed to fetch prompts:', error);
-        });
-      }
-    }, []);
+  const [formData, setFormData] = useState<AssessmentAreaFormState>(getEmptyFormData());
+  const [search, setSearch] = useState('');
+
+  const { prompts, fetchPrompts } = usePromptStore();
+
+  useEffect(() => {
+    if (prompts.length === 0) {
+      fetchPrompts().catch((error) => {
+        console.error('Failed to fetch prompts:', error);
+      });
+    }
+  }, [fetchPrompts, prompts.length]);
 
   useEffect(() => {
     if (mode === 'edit' && initialData) {
-      setFormData(initialData);
-    } else {
       setFormData({
-        assessment_name: '',
-        description: '',
-        created_by: '',
-        updated_by: '',
-        prompt_ids: [],
-      } as AssessmentArea);
+        ...initialData,
+        prompt_ids: initialData.prompt_ids?.map(String) || [],
+      });
+    } else {
+      setFormData(getEmptyFormData());
     }
   }, [mode, initialData]);
-  
-  const handleChange = (field: keyof AssessmentArea, value: string | number[]) => {
-    setFormData({ ...formData, [field]: value });
+
+  const handleChange = <K extends keyof AssessmentAreaFormState>(
+    field: K,
+    value: AssessmentAreaFormState[K]
+  ) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
   const handleSubmit = () => {
-    onSubmit(formData);
+    const payload: AssessmentArea = {
+      ...formData,
+      prompt_ids: formData.prompt_ids.map(Number),
+    };
+    onSubmit(payload);
     onClose();
   };
 
@@ -71,7 +81,7 @@ const AssessmentAreaForm: React.FC<Props> = ({
       title={mode === 'edit' ? 'Edit Assessment Area' : 'Add New Assessment Area'}
       onCancel={onClose}
       footer={null}
-      width={600}
+      width={1000}
     >
       <div className="space-y-5">
         <div>
@@ -91,39 +101,20 @@ const AssessmentAreaForm: React.FC<Props> = ({
           />
         </div>
 
-        <div>
-          <label className="block font-medium">Created By</label>
-          <Input
-            value={formData.created_by}
-            onChange={(e) => handleChange('created_by', e.target.value)}
-          />
-        </div>
+        <SearchableCheckboxList
+          title="Link Prompts"
+          items={prompts
+            .filter((p) => p.prompt_id !== undefined)
+            .map((p) => ({
+              id: String(p.prompt_id),
+              label: p.question,
+            }))}
+          selectedIds={formData.prompt_ids}
+          onChange={(ids) => handleChange('prompt_ids', ids)}
+          search={search}
+          onSearchChange={setSearch}
+        />
 
-        <div>
-          <label className="block font-medium">Updated By</label>
-          <Input
-            value={formData.updated_by}
-            onChange={(e) => handleChange('updated_by', e.target.value)}
-          />
-        </div>
-
-        <div>
-          <label className="block font-medium mb-2">Link Prompts</label>
-          <Card className="border rounded-lg p-4 max-h-48 overflow-y-auto">
-            <Checkbox.Group
-              value={formData.prompt_ids || []}
-              onChange={(val) => handleChange('prompt_ids', val)}
-            >
-              <div className="flex flex-col gap-2">
-                {prompts.map((prompt) => (
-                  <Checkbox key={prompt.prompt_id} value={prompt.prompt_id}>
-                    {prompt.question}
-                  </Checkbox>
-                ))}
-              </div>
-            </Checkbox.Group>
-          </Card>
-        </div>
 
         <div className="flex justify-end gap-2 mt-4">
           <Button onClick={onClose}>Cancel</Button>

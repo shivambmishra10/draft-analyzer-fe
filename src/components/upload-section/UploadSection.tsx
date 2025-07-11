@@ -12,16 +12,17 @@ import { CloudUploadOutlined } from "@ant-design/icons";
 import { useDocumentStore } from "@/store/documentStore";
 import AssessmentsSection from "@/components/AssessmentsSection";
 import { DocumentType, UploadResponse } from "@/model/DocumentModels";
-import DocumentMetadataCard from "./DocumentMetadataCard";
 import DocumentTypeSelector from "./DocumentTypeSelector";
 import { uploadDocument } from "@/services/documentService";
+import { ProgressStepKey } from "@/constants/ProgressStepKey";
+import { useProgressTrackerStore } from "@/store/progressTrackerStore";
+import { ProgressStepStatus } from "../../constants/ProgressStatus";
 
 const { Dragger } = Upload;
 const { Title, Paragraph, Text } = Typography;
 
 export default function UploadSection() {
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
-  const [uploadProgress, setUploadProgress] = useState(0);
   const [isUploading, setIsUploading] = useState(false);
   const [showSummarize, setShowSummarize] = useState(false);
   const [selectedDocType, setSelectedDocType] = useState<DocumentType | null>(
@@ -38,7 +39,7 @@ export default function UploadSection() {
 
   const handleUpload = async (file: File) => {
     setIsUploading(true);
-    setUploadProgress(0);
+    useProgressTrackerStore.getState().updateStepStatus(ProgressStepKey.Upload, ProgressStepStatus.InProgress);
     setSummaryRequested(false);
     setSelectedDocType(null);
     setError(null);
@@ -56,10 +57,12 @@ export default function UploadSection() {
       message.success("File uploaded successfully");
       setUploadResponse(res);
       setShowSummarize(true);
-      
+      useProgressTrackerStore.getState().updateStepStatus(ProgressStepKey.Upload, ProgressStepStatus.Completed);
+
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : "Upload failed";
       setError(errorMessage);
+      useProgressTrackerStore.getState().updateStepStatus(ProgressStepKey.Upload, ProgressStepStatus.Error);
       message.error(errorMessage);
     } finally {
       setIsUploading(false);
@@ -114,7 +117,7 @@ export default function UploadSection() {
           </p>
         </Dragger>
       </div>
-
+      <div className="text-center mt-2">
       {isUploading && (
         <div className="w-11/12 mt-4 flex items-center space-x-3">
           <Spin />
@@ -127,16 +130,9 @@ export default function UploadSection() {
           <Text type="danger">{error}</Text>
         </div>
       )}
-
+      </div>
       {!isUploading && uploadedFile && showSummarize && (
         <div className="w-full px-6 flex flex-col items-center gap-6">
-          {useDocumentStore.getState().uploadResponse && (
-            <DocumentMetadataCard
-              document={
-                useDocumentStore.getState().uploadResponse as UploadResponse
-              }
-            />
-          )}
 
           <DocumentTypeSelector onSelect={setSelectedDocType} />
 

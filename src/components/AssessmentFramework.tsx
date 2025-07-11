@@ -7,11 +7,9 @@ import { usePromptStore } from "@/store/promptStore";
 const { Paragraph } = Typography;
 
 export default function AssessmentFramework({
-  key,
-  assessment,
-  index,
+  assessment
 }: {
-  key: React.Key;
+  reactKey: React.Key;
   assessment: AssessmentArea;
   index: number;
 }) {
@@ -36,7 +34,7 @@ export default function AssessmentFramework({
           </div>
         }
         className="bg-gray-50 border border-gray-200 shadow-sm rounded-lg"
-        bodyStyle={{ paddingBottom: 12 }}
+        styles={{ body: { paddingBottom: 12 } }}
       >
         <Paragraph className="text-gray-700 mb-3">
           {assessment.description}

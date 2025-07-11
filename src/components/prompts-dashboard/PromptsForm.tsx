@@ -41,7 +41,7 @@ const PromptsForm: React.FC<Props> = ({ visible, onClose, onSubmit, mode, initia
       title={mode === 'edit' ? 'Edit Prompt' : 'Add New Prompt'}
       onCancel={onClose}
       footer={null}
-      width={600}
+      width={1000}
     >
       <div className="space-y-5">
         <div>
@@ -55,10 +55,6 @@ const PromptsForm: React.FC<Props> = ({ visible, onClose, onSubmit, mode, initia
             value={formData.question}
             onChange={(e) => handleChange('question', e.target.value)}
           />
-        </div>
-        <div>
-          <label className="block font-medium">Created By</label>
-          <Input value={formData.created_by} onChange={(e) => handleChange('created_by', e.target.value)} />
         </div>
         <div className="flex justify-end gap-2 mt-4">
           <Button onClick={onClose}>Cancel</Button>

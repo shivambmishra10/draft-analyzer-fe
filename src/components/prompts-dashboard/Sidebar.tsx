@@ -6,27 +6,44 @@ import {
   ApartmentOutlined,
 } from '@ant-design/icons';
 
-const Sidebar = ({ selectedKey, onSelect }: { selectedKey: string; onSelect: (key: string) => void }) => {
+const menuItems = [
+  {
+    key: 'document-types',
+    icon: <FileTextOutlined />,
+    label: 'Document Types',
+  },
+  {
+    key: 'assessment-area',
+    icon: <CheckSquareOutlined />,
+    label: 'Assessment Area',
+  },
+  {
+    key: 'prompts',
+    icon: <BulbOutlined />,
+    label: 'Prompts',
+  },
+  {
+    key: 'hierarchy-view',
+    icon: <ApartmentOutlined />,
+    label: 'Hierarchy View',
+  },
+];
+
+const Sidebar = ({
+  selectedKey,
+  onSelect,
+}: {
+  selectedKey: string;
+  onSelect: (key: string) => void;
+}) => {
   return (
     <Menu
       mode="vertical"
       selectedKeys={[selectedKey]}
       onClick={({ key }) => onSelect(key)}
       className="w-full border-r h-full"
-    >
-      <Menu.Item key="document-types" icon={<FileTextOutlined />}>
-        Document Types
-      </Menu.Item>
-      <Menu.Item key="assessment-area" icon={<CheckSquareOutlined />}>
-        Assessment Area
-      </Menu.Item>
-      <Menu.Item key="prompts" icon={<BulbOutlined />}>
-        Prompts
-      </Menu.Item>
-      <Menu.Item key="hierarchy-view" icon={<ApartmentOutlined />}>
-        Hierarchy View
-      </Menu.Item>
-    </Menu>
+      items={menuItems}
+    />
   );
 };
 
