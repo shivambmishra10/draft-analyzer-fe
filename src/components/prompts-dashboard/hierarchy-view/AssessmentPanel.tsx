@@ -41,9 +41,9 @@ const AssessmentPanel = ({
                   (e.currentTarget.style.backgroundColor = "transparent")
                 }
               >
-                <Tooltip title={prompt?.question}>
+                <Tooltip title={prompt?.description}>
                   <MessageOutlined style={{ marginRight: 8, color: "#faad14" }} />
-                  <span>{prompt?.question ?? `Prompt ID: ${pid}`}</span>
+                  <span>{prompt?.description ?? `Prompt ID: ${pid}`}</span>
                 </Tooltip>
                 <Tag color="gold" style={{ marginLeft: "auto" }}>
                   Prompt

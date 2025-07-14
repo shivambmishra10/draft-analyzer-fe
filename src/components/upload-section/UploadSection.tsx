@@ -117,16 +117,16 @@ export default function UploadSection() {
           </p>
         </Dragger>
       </div>
-      <div className="text-center mt-2">
+      <div>
       {isUploading && (
-        <div className="w-11/12 mt-4 flex items-center space-x-3">
+        <div className="text-center mt-6 flex items-center space-x-3">
           <Spin />
           <span className="text-sm text-gray-700">Uploading document... Please wait</span>
         </div>
       )}
 
       {error && (
-        <div className="text-red-500 mt-2">
+        <div className="text-red-500 text-center mt-4">
           <Text type="danger">{error}</Text>
         </div>
       )}

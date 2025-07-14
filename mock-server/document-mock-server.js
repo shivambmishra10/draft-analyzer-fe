@@ -112,22 +112,22 @@ app.post('/evaluations', (req, res) => {
     res.json({
       evaluations: [
         {
-          question: 'What are the main policy objectives?',
+          description: 'What are the main policy objectives?',
           answer: 'Carbon reduction, green buildings, public transit, green space, and water conservation.',
           score: 9.5,
         },
         {
-          question: 'How does this policy address equity concerns?',
+          description: 'How does this policy address equity concerns?',
           answer: 'Focus on equitable benefit distribution and community involvement.',
           score: 7.8,
         },
         {
-          question: 'What is the implementation timeline?',
+          description: 'What is the implementation timeline?',
           answer: 'Phased: regulation (1–2), investment (3–7), monitoring (8–10).',
           score: 9.0,
         },
         {
-          question: 'What funding mechanisms are proposed?',
+          description: 'What funding mechanisms are proposed?',
           answer: 'Public-private partnerships and federal grants are mentioned, but lacking detail.',
           score: 5.2,
         },

@@ -3,6 +3,8 @@ import { useEffect, useState } from 'react';
 import { AssessmentArea } from '@/model/AssessmentAreaModel';
 import { usePromptStore } from '@/store/promptStore';
 import SearchableCheckboxList from './SearchableCheckboxList';
+import { PromptType } from '@/model/PromptModel';
+import SearchableRadioList from './SearchableRadioList';
 
 interface Props {
   visible: boolean;
@@ -21,6 +23,7 @@ const getEmptyFormData = (): AssessmentAreaFormState => ({
   assessment_id: 0,
   assessment_name: '',
   description: '',
+  summary_prompt: 0,
   created_by: 'Admin',
   created_on: '',
   updated_by: '',
@@ -37,7 +40,7 @@ const AssessmentAreaForm: React.FC<Props> = ({
 }) => {
   const [formData, setFormData] = useState<AssessmentAreaFormState>(getEmptyFormData());
   const [search, setSearch] = useState('');
-
+  const [promptSearch, setPromptSearch] = useState('');
   const { prompts, fetchPrompts } = usePromptStore();
 
   useEffect(() => {
@@ -69,6 +72,7 @@ const AssessmentAreaForm: React.FC<Props> = ({
   const handleSubmit = () => {
     const payload: AssessmentArea = {
       ...formData,
+      summary_prompt: Number(formData.summary_prompt),
       prompt_ids: formData.prompt_ids.map(Number),
     };
     onSubmit(payload);
@@ -107,7 +111,7 @@ const AssessmentAreaForm: React.FC<Props> = ({
             .filter((p) => p.prompt_id !== undefined)
             .map((p) => ({
               id: String(p.prompt_id),
-              label: p.question,
+              label: p.description,
             }))}
           selectedIds={formData.prompt_ids}
           onChange={(ids) => handleChange('prompt_ids', ids)}
@@ -115,6 +119,17 @@ const AssessmentAreaForm: React.FC<Props> = ({
           onSearchChange={setSearch}
         />
 
+        <SearchableRadioList
+          title="Select Summary Prompt"
+          items={prompts
+            .filter(p => p.prompt_type === PromptType.SUMMARY && p.prompt_id !== undefined)
+            .map(p => ({ id: p.prompt_id as number, label: p.description }))
+          }
+          selectedId={formData.summary_prompt}
+          onChange={(id) => handleChange('summary_prompt', id)}
+          search={promptSearch}
+          onSearchChange={setPromptSearch}
+        />
 
         <div className="flex justify-end gap-2 mt-4">
           <Button onClick={onClose}>Cancel</Button>

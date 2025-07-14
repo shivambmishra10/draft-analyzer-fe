@@ -29,7 +29,7 @@ const DocumentTypeSelector: React.FC<Props> = ({ onSelect }) => {
     }, []);
 
   return (
-    <div className="w-full max-w-sm mt-6">
+    <div className="w-full max-w-sm">
       <Text strong>Select Document Type:</Text>
       {documentTypesLoading ? (
         <Spin style={{ display: "block", marginTop: 12 }} />
