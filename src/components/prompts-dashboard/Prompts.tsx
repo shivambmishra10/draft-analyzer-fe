@@ -87,9 +87,9 @@ const Prompts = () => {
       key: "criteria",
     },
     {
-      title: "Question",
-      dataIndex: "question",
-      key: "question",
+      title: "Description",
+      dataIndex: "description",
+      key: "description",
     },
     {
       title: "Created By",
@@ -152,7 +152,7 @@ const Prompts = () => {
     <div className="p-6">
       <Title level={2}>Prompt Management</Title>
       <Text type="secondary" className="mb-4 block">
-        Manage Prompt Questions
+        Manage Prompt Descriptions
       </Text>
 
       <div className="flex justify-between items-center mb-4">

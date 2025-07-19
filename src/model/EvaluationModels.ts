@@ -1,5 +1,5 @@
 export interface EvaluationItem {
-  question: string;
+  description: string;
   answer: string;
   score: number;
 }

@@ -70,7 +70,7 @@ export default function AssessmentFramework({
                   </div>
 
                   {/* Prompt */}
-                  <div className="text-gray-800 text-sm">{item.question}</div>
+                  <div className="text-gray-800 text-sm">{item.description}</div>
                 </div>
               );
             })}

@@ -32,6 +32,7 @@ export interface DocumentType {
   doc_type_id: number;
   doc_type_name: string;
   description: string;
+  doc_validation_prompt: number;
   created_by: string;
   created_on: string; 
   updated_by: string | null;
@@ -41,7 +42,7 @@ export interface DocumentType {
 
 export interface AssessmentPrompt {
   id: number;
-  question: string;
+  description: string;
   category: string;
   isRequired: boolean;
 }
@@ -56,4 +57,11 @@ export interface Assessment {
 export interface DocumentTypeAssessment {
   documentType: DocumentType;
   assessments: Assessment[];
+}
+
+// Document validation response
+export interface DocumentValidationResponse {
+  doc_id: string;
+  doc_status: string;
+  doc_status_message: string;
 }

@@ -8,9 +8,10 @@ const { Text } = Typography;
 
 interface Props {
   onSelect: (docType: DocumentType) => void;
+  isDocTypeDisabled?: boolean; 
 }
 
-const DocumentTypeSelector: React.FC<Props> = ({ onSelect }) => {
+const DocumentTypeSelector: React.FC<Props> = ({ onSelect, isDocTypeDisabled }) => {
   const [selected, setSelected] = useState<DocumentType | undefined>(undefined);
 
   const {
@@ -29,7 +30,7 @@ const DocumentTypeSelector: React.FC<Props> = ({ onSelect }) => {
     }, []);
 
   return (
-    <div className="w-full max-w-sm mt-6">
+    <div className="w-full max-w-sm">
       <Text strong>Select Document Type:</Text>
       {documentTypesLoading ? (
         <Spin style={{ display: "block", marginTop: 12 }} />
@@ -38,6 +39,7 @@ const DocumentTypeSelector: React.FC<Props> = ({ onSelect }) => {
           placeholder="Choose document type"
           style={{ width: "100%", marginTop: 8 }}
           value={selected?.doc_type_id}
+          disabled={isDocTypeDisabled}
           onChange={(value) => {
             const docType = documentTypes.find(
               (dt) => dt.doc_type_id === value

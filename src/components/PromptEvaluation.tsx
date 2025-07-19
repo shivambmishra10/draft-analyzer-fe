@@ -52,7 +52,7 @@ const PromptEvaluation: React.FC = () => {
         style={{ textAlign: "center", margin: "0 auto 24px" }}
       >
         View the answers and score for your uploaded policy documents using the
-        predefined question.
+        predefined description.
       </Paragraph>
 
       {loading ? (
@@ -71,7 +71,7 @@ const PromptEvaluation: React.FC = () => {
               }}
             >
               <Paragraph strong style={{ color: "#1890ff", marginBottom: 4 }}>
-                {evalItem.question}
+                {evalItem.description}
               </Paragraph>
               <Paragraph>{evalItem.answer}</Paragraph>
               <Tag
