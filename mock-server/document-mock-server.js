@@ -45,6 +45,22 @@ app.post('/upload_policy', upload.single('file'), (req, res) => {
   }, 100); // 1 sec delay
 });
 
+app.get('/document_types/:doc_type_id/validation_status', (req, res) => {
+  const { doc_type_id } = req.params;
+
+  const isValid = parseInt(doc_type_id, 10) % 2 === 0;
+
+  const mockResponse = {
+    doc_id: `doc-${doc_type_id}`,
+    doc_status: isValid ? 'valid' : 'invalid',
+    doc_status_message: isValid
+      ? 'The uploaded document passed validation.'
+      : 'The uploaded document is not valid document for selected document type.',
+  };
+
+  res.json(mockResponse);
+});
+
 // Create Document Endpoint
 app.post('/create_document', (req, res) => {
   const newDocument = req.body;

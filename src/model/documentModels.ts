@@ -58,3 +58,10 @@ export interface DocumentTypeAssessment {
   documentType: DocumentType;
   assessments: Assessment[];
 }
+
+// Document validation response
+export interface DocumentValidationResponse {
+  doc_id: string;
+  doc_status: string;
+  doc_status_message: string;
+}

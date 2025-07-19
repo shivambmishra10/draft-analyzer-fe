@@ -38,7 +38,7 @@ interface DocumentTypeStore {
   deleteDocumentTypeById: (id: number) => Promise<void>;
 }
 
-export const useDocumentTypeStore = create<DocumentTypeStore>((set, get) => ({
+export const useDocumentTypeStore = create<DocumentTypeStore>((set) => ({
   documentTypes: [],
   documentTypesLoading: false,
   documentTypesError: null,
