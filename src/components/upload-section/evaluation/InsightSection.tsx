@@ -16,8 +16,8 @@ import { summarizeDocument } from "@/services/documentService";
 import { useDocumentStore } from "@/store/documentStore";
 import { SummaryResponse } from "@/model/DocumentModels";
 import { useProgressTrackerStore } from "@/store/progressTrackerStore";
-import { ProgressStepStatus } from "../constants/ProgressStatus";
-import { ProgressStepKey } from "../constants/ProgressStepKey";
+import { ProgressStepStatus } from "../../../constants/ProgressStatus";
+import { ProgressStepKey } from "../../../constants/ProgressStepKey";
 
 const { Title, Paragraph } = Typography;
 

@@ -194,6 +194,7 @@ app.get('/document_types/:id', (req, res) => {
 
 app.post('/document_types', (req, res) => {
   const newType = req.body;
+  newType.doc_type_id = documentTypes.length + 1; // Simple ID assignment
   documentTypes.push(newType);
   res.status(201).json(newType);
 });
@@ -231,6 +232,7 @@ app.get('/prompt/:id', (req, res) => {
 
 app.post('/prompt', (req, res) => {
   const newPrompt = req.body;
+  newPrompt.prompt_id = prompts.length + 1; // Simple ID assignment
   prompts.push(newPrompt);
   res.status(201).json(newPrompt);
 });
@@ -259,6 +261,7 @@ app.get('/assessment_areas/:id', (req, res) => {
 
 app.post('/assessment_areas', (req, res) => {
   const newArea = req.body;
+  newArea.assessment_id = assessmentAreas.length + 1; // Simple ID assignment
   assessmentAreas.push(newArea);
   res.status(201).json(newArea);
 });

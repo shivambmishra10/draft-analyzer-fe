@@ -11,7 +11,7 @@ import {
 import type { UploadProps } from "antd";
 import { CloudUploadOutlined } from "@ant-design/icons";
 import { useDocumentStore } from "@/store/documentStore";
-import AssessmentsSection from "@/components/AssessmentsSection";
+import AssessmentsSection from "@/components/upload-section/assessment-framework/AssessmentsSection";
 import { DocumentType, DocumentValidationResponse, UploadResponse } from "@/model/DocumentModels";
 import DocumentTypeSelector from "./DocumentTypeSelector";
 import { getDocumentValidationStatus, uploadDocument } from "@/services/documentService";
