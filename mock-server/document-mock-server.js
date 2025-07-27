@@ -45,15 +45,17 @@ app.post('/upload_policy', upload.single('file'), (req, res) => {
   }, 100); // 1 sec delay
 });
 
-app.get('/document_types/:doc_type_id/validation_status', (req, res) => {
+app.get('/document/:doc_id/document-type/:doc_type_id/validate', (req, res) => {
   const { doc_type_id } = req.params;
 
   const isValid = parseInt(doc_type_id, 10) % 2 === 0;
 
   const mockResponse = {
-    doc_id: `doc-${doc_type_id}`,
-    doc_status: isValid ? 'valid' : 'invalid',
-    doc_status_message: isValid
+    "doc_summary_id": 1,
+    "doc_id": "9961b70d-4c05-433e-a2fc-7a8225a89582",
+    "doc_type_id": 1,
+    "is_valid_document": isValid,
+    "doc_valid_status_msg": isValid
       ? 'The uploaded document passed validation.'
       : 'The uploaded document is not valid document for selected document type.',
   };
