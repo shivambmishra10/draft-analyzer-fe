@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const multer = require('multer');
+const fs = require('fs');
 const {
   prompts,
   assessmentAreas,
@@ -289,6 +290,21 @@ app.get('/assessment_areas/:areaId/prompt', (req, res) => {
     .map(rel => rel.prompt_id);
   const relatedPrompts = prompts.filter(p => promptIds.includes(p.prompt_id));
   res.json(relatedPrompts);
+});
+
+app.get('/report/download/:doc_summary_id', (req, res) => {
+  const { doc_summary_id } = req.params;
+
+  const filePath = 'draft_policy_report.pdf';
+
+  if (!fs.existsSync(filePath)) {
+    return res.status(404).send('Report not found');
+  }
+
+  res.setHeader('Content-Type', 'application/pdf');
+  res.setHeader('Content-Disposition', `attachment; filename="draft_policy_report_${doc_summary_id}.pdf"`);
+
+  fs.createReadStream(filePath).pipe(res);
 });
 
 app.listen(PORT, () => {

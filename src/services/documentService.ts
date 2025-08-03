@@ -59,6 +59,19 @@ export const getDocumentValidationStatus = async (doc_type_id: number): Promise<
   return response.data;
 };
 
+export const downloadSummaryReport = async (doc_summary_id: number) => {
+
+  const response = await axios.get(`${BASE_URL}/report/download/${doc_summary_id}`, {
+    responseType: 'blob',
+  });
+  const url = window.URL.createObjectURL(new Blob([response.data]));
+  const link = document.createElement('a');
+  link.href = url;
+  link.setAttribute('download', `draft_policy_report_${doc_summary_id}.pdf`);
+  link.click();
+  window.URL.revokeObjectURL(url);
+};
+
 export const fetchPromptEvaluations = async (
   req: EvaluationRequest
 ): Promise<EvaluationResponse> => {
