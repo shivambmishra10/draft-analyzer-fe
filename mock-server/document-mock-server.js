@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const multer = require('multer');
+const fs = require('fs');
 const {
   prompts,
   assessmentAreas,
@@ -45,15 +46,17 @@ app.post('/upload_policy', upload.single('file'), (req, res) => {
   }, 100); // 1 sec delay
 });
 
-app.get('/document_types/:doc_type_id/validation_status', (req, res) => {
+app.get('/document/:doc_id/document-type/:doc_type_id/validate', (req, res) => {
   const { doc_type_id } = req.params;
 
   const isValid = parseInt(doc_type_id, 10) % 2 === 0;
 
   const mockResponse = {
-    doc_id: `doc-${doc_type_id}`,
-    doc_status: isValid ? 'valid' : 'invalid',
-    doc_status_message: isValid
+    "doc_summary_id": 1,
+    "doc_id": "9961b70d-4c05-433e-a2fc-7a8225a89582",
+    "doc_type_id": 1,
+    "is_valid_document": isValid,
+    "doc_valid_status_msg": isValid
       ? 'The uploaded document passed validation.'
       : 'The uploaded document is not valid document for selected document type.',
   };
@@ -194,6 +197,7 @@ app.get('/document_types/:id', (req, res) => {
 
 app.post('/document_types', (req, res) => {
   const newType = req.body;
+  newType.doc_type_id = documentTypes.length + 1; // Simple ID assignment
   documentTypes.push(newType);
   res.status(201).json(newType);
 });
@@ -231,6 +235,7 @@ app.get('/prompt/:id', (req, res) => {
 
 app.post('/prompt', (req, res) => {
   const newPrompt = req.body;
+  newPrompt.prompt_id = prompts.length + 1; // Simple ID assignment
   prompts.push(newPrompt);
   res.status(201).json(newPrompt);
 });
@@ -259,6 +264,7 @@ app.get('/assessment_areas/:id', (req, res) => {
 
 app.post('/assessment_areas', (req, res) => {
   const newArea = req.body;
+  newArea.assessment_id = assessmentAreas.length + 1; // Simple ID assignment
   assessmentAreas.push(newArea);
   res.status(201).json(newArea);
 });
@@ -284,6 +290,21 @@ app.get('/assessment_areas/:areaId/prompt', (req, res) => {
     .map(rel => rel.prompt_id);
   const relatedPrompts = prompts.filter(p => promptIds.includes(p.prompt_id));
   res.json(relatedPrompts);
+});
+
+app.get('/report/download/:doc_summary_id', (req, res) => {
+  const { doc_summary_id } = req.params;
+
+  const filePath = 'draft_policy_report.pdf';
+
+  if (!fs.existsSync(filePath)) {
+    return res.status(404).send('Report not found');
+  }
+
+  res.setHeader('Content-Type', 'application/pdf');
+  res.setHeader('Content-Disposition', `attachment; filename="draft_policy_report_${doc_summary_id}.pdf"`);
+
+  fs.createReadStream(filePath).pipe(res);
 });
 
 app.listen(PORT, () => {

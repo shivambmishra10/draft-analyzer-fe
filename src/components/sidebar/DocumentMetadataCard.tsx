@@ -1,6 +1,8 @@
 import React from "react";
-import { Card, Descriptions } from "antd";
+import { Button, Card, Descriptions, message } from "antd";
 import { UploadResponse } from "@/model/DocumentModels";
+import { downloadSummaryReport } from "@/services/documentService";
+import { useDocumentSummaryStore } from "@/store/documentSummaryStore";
 
 const formatFileSize = (sizeKb: number) => {
   return sizeKb >= 1024 ? `${(sizeKb / 1024).toFixed(2)} MB` : `${sizeKb} KB`;
@@ -9,9 +11,25 @@ const formatFileSize = (sizeKb: number) => {
 const DocumentMetadataCard: React.FC<{ document: UploadResponse }> = ({
   document,
 }) => {
+
+  const handleSummaryDownload = async () => {
+    const doc_summary_id = useDocumentSummaryStore.getState().summary?.doc_summary_id;
+    if (!doc_summary_id) {
+      message.error('No summary available for download');
+      return;
+    }
+    
+    try {
+      await downloadSummaryReport(doc_summary_id);
+      message.success('Summary report downloaded successfully');
+    } catch (error) {
+      message.error('Download failed');
+    }
+  };
+
   return (
     <Card
-      title="Document Info"
+      title="Uploaded Document Details"
       className="w-full bg-gray-50 rounded-xl mt-6 shadow"
       styles={{
         header: {
@@ -26,11 +44,6 @@ const DocumentMetadataCard: React.FC<{ document: UploadResponse }> = ({
         styles={{ label: { fontWeight: 500, color: "#4a4a4a" } }}
         size="small"
       >
-        <Descriptions.Item label="Document ID">
-          <div className="flex items-center min-h-[1.5rem]">
-            <span className="text-xs text-gray-700">{document.doc_id}</span>
-          </div>
-        </Descriptions.Item>
         <Descriptions.Item label="File Name">
           <div className="flex items-center min-h-[1.5rem]">
             <span className="text-xs text-gray-700">{document.file_name}</span>
@@ -47,6 +60,11 @@ const DocumentMetadataCard: React.FC<{ document: UploadResponse }> = ({
           </div>
         </Descriptions.Item>
       </Descriptions>{" "}
+      <div className="flex items-center justify-center mt-4">
+        <Button type="primary" ghost onClick={handleSummaryDownload}>
+          Download Summary Report
+        </Button>
+      </div>
     </Card>
   );
 };

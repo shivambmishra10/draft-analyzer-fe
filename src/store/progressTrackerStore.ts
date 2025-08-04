@@ -6,6 +6,7 @@ import {
   MessageSquareQuote,
   BarChart4,
   Download,
+  NotebookPen,
 } from "lucide-react";
 import { ProgressStepStatus } from "@/constants/ProgressStatus";
 import { ProgressStepKey } from "@/constants/ProgressStepKey";
@@ -30,6 +31,7 @@ export const useProgressTrackerStore = create<ProgressTrackerState>((set) => ({
     { key: ProgressStepKey.Summarize, label: "Summarize Document", icon: FileText, status: ProgressStepStatus.Pending },
     { key: ProgressStepKey.Evaluate, label: "Document Evaluation", icon: MessageSquareQuote, status: ProgressStepStatus.Pending },
     { key: ProgressStepKey.Score, label: "Score Analysis", icon: BarChart4, status: ProgressStepStatus.Pending },
+    { key: ProgressStepKey.Report, label: "Report Generation", icon: NotebookPen, status: ProgressStepStatus.Pending },
     { key: ProgressStepKey.Download, label: "Download Report", icon: Download, status: ProgressStepStatus.Pending },
   ],
   updateStepStatus: (key, status) =>
