@@ -1,46 +1,75 @@
 import React, { useEffect, useState } from "react";
-import { Card, Typography, Tag, Space, Spin, message } from "antd";
-import { EvaluationItem } from "@/model/EvaluationModels";
-import { fetchPromptEvaluations } from "@/services/documentService";
-import { useDocumentStore } from "@/store/documentStore";
+import { Card, Typography } from "antd";
+// import { EvaluationItem } from "@/model/EvaluationModels";
+import { useDocumentStore, useDocumentTypeStore } from "@/store/documentStore";
 import { useProgressTrackerStore } from "@/store/progressTrackerStore";
+import { useDocumentSummaryStore } from "@/store/documentSummaryStore";
+import { useAssessmentEvaluationStore } from "@/store/assessmentEvaluationStore";
 import { ProgressStepStatus } from "../../../constants/ProgressStatus";
 import { ProgressStepKey } from "../../../constants/ProgressStepKey";
+import { AssessmentAreaEvaluation } from "@/model/documentModels";
+import AssessmentAreaCard from "../assessment-evaluation/AssessmentAreaCard";
 
 const { Title, Paragraph } = Typography;
 
-const getScoreTagColor = (score: number) => {
-  if (score >= 8) return "green";
-  if (score >= 6) return "orange";
-  return "red";
+// const getScoreTagColor = (score: number) => {
+//   if (score >= 8) return "green";
+//   if (score >= 6) return "orange";
+//   return "red";
+// };
+
+const getSize = (obj: Map<number, AssessmentAreaEvaluation> | object) => {
+  if (obj instanceof Map) {
+    return obj.size;
+  } else {
+    return Object.keys(obj).length;
+  }
 };
 
 const PromptEvaluation: React.FC = () => {
-  const fileName = useDocumentStore((state) => state.uploadResponse?.file_name);
-  const docId = useDocumentStore((state) => state.uploadResponse?.doc_id);
-  const [evaluations, setEvaluations] = useState<EvaluationItem[]>([]);
-  const [loading, setLoading] = useState(false);
+  const summaryRequested = useDocumentStore((state) => state.summaryRequested);
+  // const [evaluations, setEvaluations] = useState<EvaluationItem[]>([]);
+  // const [loading, setLoading] = useState(false);
+  const [docSummaryId, setDocSummaryId] = useState(0);
+  const [assessmentIds, setAssessmentIds] = useState([]);
   const updateStepStatus = useProgressTrackerStore((state) => state.updateStepStatus);
+  // const fetchAndSetAssessmentEvaluations = useAssessmentEvaluationStore((state) => state.fetchAndSetAssessmentEvaluations);
+  const evaluations = useAssessmentEvaluationStore((state) => state.evaluations);
+  const evaluationsError = useAssessmentEvaluationStore((state) => state.evaluationsError);
 
   useEffect(() => {
-    const fetchData = async () => {
-      if (!fileName || !docId) return;
-      setLoading(true);
+    const setStates = () => {
+      if (!summaryRequested) return;
+      // setLoading(true);
       updateStepStatus(ProgressStepKey.Evaluate, ProgressStepStatus.InProgress);
-      try {
-        const data = await fetchPromptEvaluations({ docId });
-        setEvaluations(data.evaluations);
-        updateStepStatus(ProgressStepKey.Evaluate, ProgressStepStatus.Completed);
-      } catch (err) {
-        message.error("Failed to fetch evaluations.");
-        updateStepStatus(ProgressStepKey.Evaluate, ProgressStepStatus.Error);
-      } finally {
-        setLoading(false);
-      }
+      const summary = useDocumentSummaryStore.getState().summary;
+      setDocSummaryId(summary.doc_summary_id);
+      const document_type = useDocumentTypeStore.getState().documentTypes.filter(
+        (type) => type.doc_type_id == summary.doc_type_id
+      )[0];
+      setAssessmentIds(document_type.assessment_ids);
+      // try {
+      //   const evaluations = fetchAndSetAssessmentEvaluations(summary.doc_summary_id, document_type.assessment_ids);
+      //   setEvaluations(evaluations);
+      //   updateStepStatus(ProgressStepKey.Evaluate, ProgressStepStatus.Completed);
+      // } catch (err) {
+      //   message.error("Failed to fetch evaluations.");
+      //   updateStepStatus(ProgressStepKey.Evaluate, ProgressStepStatus.Error);
+      // } finally {
+      //   setLoading(false);
+      // }
     };
 
-    fetchData();
-  }, [docId]);
+    setStates();
+  }, [summaryRequested, updateStepStatus]);
+
+  useEffect(() => {
+    if (getSize(evaluationsError) > 0) {
+      updateStepStatus(ProgressStepKey.Evaluate, ProgressStepStatus.Error);
+    } else if (getSize(evaluations) + getSize(evaluationsError) === assessmentIds.length) {
+      updateStepStatus(ProgressStepKey.Evaluate, ProgressStepStatus.Completed);
+    }
+  }, [evaluations, evaluationsError]);
 
   return (
     <Card className="shadow-lg rounded-2xl p-6 mx-auto mt-8 mb-16">
@@ -55,7 +84,7 @@ const PromptEvaluation: React.FC = () => {
         predefined description.
       </Paragraph>
 
-      {loading ? (
+      {/* {loading ? (
         <div className="flex justify-center py-8">
           <Spin tip="Loading evaluations..." size="large" />
         </div>
@@ -83,7 +112,10 @@ const PromptEvaluation: React.FC = () => {
             </Card>
           ))}
         </Space>
-      )}
+      )} */}
+      {assessmentIds.map((assessment_id) => (
+        <AssessmentAreaCard doc_summary_id={docSummaryId} assessment_id={assessment_id}/>
+      ))}
     </Card>
   );
 };
