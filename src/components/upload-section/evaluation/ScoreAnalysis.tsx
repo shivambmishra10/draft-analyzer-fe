@@ -39,7 +39,7 @@ const ScoreAnalysis: React.FC = () => {
       doc_type_id: null,
     });
 
-  const { evaluations, evaluationsError } = useAssessmentEvaluationStore();
+  const { evaluations } = useAssessmentEvaluationStore();
 
   const documentTypes = useDocumentTypeStore((state) => state.documentTypes);
 
@@ -56,10 +56,8 @@ const ScoreAnalysis: React.FC = () => {
   documentType.assessment_ids.every(
     (id) =>
       evaluations &&
-      //evaluationsError &&
       (
-        (evaluations as Record<number, any>)[id] !== undefined 
-        // || (evaluationsError as Record<number, any>)[id] !== undefined
+        (evaluations as Record<number, any>)[id] !== undefined
       )
   );
 
@@ -128,7 +126,7 @@ const ScoreAnalysis: React.FC = () => {
       <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
         {aggregatedData.map((item) => (
           <Col xs={24} sm={12} md={8} lg={6} key={item.criteria}>
-            <Card title={item.criteria} bordered bodyStyle={{ padding: "12px 16px" }}>
+            <Card title={item.criteria} variant="outlined" styles={{ body: { padding: "12px 16px" } }}>
               <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
                 <span style={{ fontSize: 14, color: "#888" }}>Score</span>
                 <span style={{ fontSize: 16, fontWeight: "bold" }}>
@@ -148,7 +146,7 @@ const ScoreAnalysis: React.FC = () => {
       {/* Charts */}
       <Row gutter={[16, 16]}>
         <Col xs={24} md={12}>
-          <Card title="Score Overview (Bar Chart)" bordered={false}>
+          <Card title="Score Overview (Bar Chart)" variant="borderless">
             <div style={{ height: 320, padding: "8px" }}>
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart
@@ -170,7 +168,7 @@ const ScoreAnalysis: React.FC = () => {
         </Col>
 
         <Col xs={24} md={12}>
-          <Card title="Score Distribution (Pie Chart)" bordered={false}>
+          <Card title="Score Distribution (Pie Chart)" variant="borderless">
             <div style={{ height: 320, padding: "8px" }}>
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>

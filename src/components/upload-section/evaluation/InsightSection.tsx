@@ -2,78 +2,72 @@ import React, { useEffect, useRef, useState } from "react";
 import {
   Card,
   Typography,
-  Button,
   Spin,
   message,
 } from "antd";
 import {
   FileTextOutlined,
-  DownloadOutlined,
 } from "@ant-design/icons";
-import html2canvas from "html2canvas";
-import jsPDF from "jspdf";
-import { useDocumentStore } from "@/store/documentStore";
 import { SummaryResponse } from "@/model/DocumentModels";
-import { useProgressTrackerStore } from "@/store/progressTrackerStore";
-import { ProgressStepStatus } from "../../../constants/ProgressStatus";
-import { ProgressStepKey } from "../../../constants/ProgressStepKey";
 import { useDocumentSummaryStore } from "@/store/documentSummaryStore";
+import { useDocumentStore } from "@/store/documentStore";
+import { ProgressStepKey } from "@/constants/ProgressStepKey";
+import { ProgressStepStatus } from "@/constants/ProgressStatus";
+import { useProgressTrackerStore } from "@/store/progressTrackerStore";
 
 const { Title, Paragraph } = Typography;
 
-const InsightSection: React.FC = () => {
-  const summaryRequested = useDocumentStore((state) => state.summaryRequested);
+interface InsightSectionProps {
+  docSummaryId?: number; 
+  isHistoryMode?: boolean; 
+}
 
+const InsightSection: React.FC<InsightSectionProps> = ({ 
+  docSummaryId, 
+  isHistoryMode = false 
+}) => {
   const [loading, setLoading] = useState(false);
   const [summaryData, setSummaryData] = useState<SummaryResponse | null>(null);
   const summaryRef = useRef<HTMLDivElement>(null);
   const updateStepStatus = useProgressTrackerStore((state) => state.updateStepStatus);
   const fetchAndSetSummaryText = useDocumentSummaryStore((state) => state.fetchAndSetSummaryText);
 
+  
+  const summaryRequested = useDocumentStore((state) => state.summaryRequested);
+  const summary = useDocumentSummaryStore((state) => state.summary);
+
   useEffect(() => {
     const getSummary = async () => {
-      if (!summaryRequested) return;
-      updateStepStatus(ProgressStepKey.Summarize, ProgressStepStatus.InProgress);
+      let shouldFetch = false;
+      let summaryId: number | null = null;
+
+      if (isHistoryMode && docSummaryId) {
+        shouldFetch = true;
+        summaryId = docSummaryId;
+      } else if (!isHistoryMode && summaryRequested && summary?.doc_summary_id) {
+        shouldFetch = true;
+        summaryId = summary.doc_summary_id;
+      }
+
+      if (!shouldFetch || !summaryId) return;
+
       setLoading(true);
-      const summary = useDocumentSummaryStore.getState().summary;
       try {
-       
-        if (!summary) {
-          message.error("Document summary is missing.");
-          setLoading(false);
-          return;
-        }
-        console.log("Fetching summary for doc_summary_id:", summary.doc_summary_id);
-        const response = await fetchAndSetSummaryText(summary.doc_summary_id || 0);
+        console.log("Fetching summary for doc_summary_id:", summaryId);
+        const response = await fetchAndSetSummaryText(summaryId);
         setSummaryData(response);
         updateStepStatus(ProgressStepKey.Summarize, ProgressStepStatus.Completed);
+
       } catch (err) {
+        console.error("Failed to fetch summary:", err);
         message.error("Failed to fetch summary.");
-        updateStepStatus(ProgressStepKey.Summarize, ProgressStepStatus.Error);
       } finally {
         setLoading(false);
       }
     };
 
     getSummary();
-  }, [summaryRequested, updateStepStatus]);
-
-  const handleDownloadPDF = async () => {
-    if (!summaryRef.current) return;
-    const canvas = await html2canvas(summaryRef.current, {
-      scale: 2,
-      useCORS: true,
-    });
-
-    const imgData = canvas.toDataURL("image/png");
-    const pdf = new jsPDF("p", "mm", "a4");
-    const pdfWidth = pdf.internal.pageSize.getWidth();
-    const imgProps = pdf.getImageProperties(imgData);
-    const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
-
-    pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
-    pdf.save("policy_summary.pdf");
-  };
+  }, [docSummaryId, isHistoryMode, summaryRequested, summary?.doc_summary_id, fetchAndSetSummaryText]);
 
   return (
     <Card className="shadow-lg rounded-2xl p-6 mx-auto mt-8 mb-16">
@@ -94,7 +88,7 @@ const InsightSection: React.FC = () => {
 
         {loading ? (
           <div className="flex justify-center py-8">
-            <Spin tip="Generating summary..." size="large" />
+            <Spin tip="Loading summary..." size="large" />
           </div>
         ) : summaryData ? (
           <div style={{ marginTop: 24 }}>
@@ -120,29 +114,10 @@ const InsightSection: React.FC = () => {
           </div>
         ) : (
           <Paragraph style={{ textAlign: "center", marginTop: 32 }}>
-            Upload a document and click summarize to view the summary here.
+            "Document summary is not available."
           </Paragraph>
         )}
       </div>
-
-      {summaryData && (
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "center",
-            marginTop: 24,
-          }}
-        >
-          <Button
-            icon={<DownloadOutlined />}
-            type="primary"
-            ghost
-            onClick={handleDownloadPDF}
-          >
-            Download Summary
-          </Button>
-        </div>
-      )}
     </Card>
   );
 };

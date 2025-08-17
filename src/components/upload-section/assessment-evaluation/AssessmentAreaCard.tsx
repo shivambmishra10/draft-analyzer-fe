@@ -3,6 +3,7 @@ import { Spin, Space, Card, Typography, Tag, message } from "antd";
 import { useAssessmentEvaluationStore } from "@/store/assessmentEvaluationStore";
 import { useAssessmentAreaStore } from "@/store/assessmentAreaStore";
 import { AssessmentAreaEvaluation } from "@/model/DocumentModels";
+import { getScoreTagColor } from "@/utils/documentUtils";
 
 const { Paragraph } = Typography;
 
@@ -10,13 +11,6 @@ interface Props {
   doc_summary_id: number;
   assessment_id: number;
 }
-
-const getScoreTagColor = (score?: number) => {
-  if (score === undefined) return undefined;
-  if (score >= 8) return "green";
-  if (score >= 6) return "orange";
-  return "red";
-};
 
 const AssessmentAreaCard: React.FC<Props> = ({ doc_summary_id, assessment_id }) => {
   const [loading, setLoading] = useState(false);
