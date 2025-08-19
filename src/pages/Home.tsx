@@ -67,22 +67,22 @@ const HomePage: React.FC = () => {
       {/* Feature Cards */}
       <Row gutter={[24, 24]} justify="center" style={{ marginTop: 48 }}>
         <Col xs={24} sm={12} md={6}>
-          <Card title="AI Summary" bordered={false} hoverable>
+          <Card title="AI Summary" variant="borderless" hoverable>
             Instantly generate readable summaries of long policy documents.
           </Card>
         </Col>
         <Col xs={24} sm={12} md={6}>
-          <Card title="Smart Evaluation" bordered={false} hoverable>
+          <Card title="Smart Evaluation" variant="borderless" hoverable>
             Evaluate the document using customized prompts and scoring.
           </Card>
         </Col>
         <Col xs={24} sm={12} md={6}>
-          <Card title="Visual Insights" bordered={false} hoverable>
+          <Card title="Visual Insights" variant="borderless" hoverable>
             Interactive charts help you assess clarity, implementation, and impact.
           </Card>
         </Col>
         <Col xs={24} sm={12} md={6}>
-          <Card title="Download Reports" bordered={false} hoverable>
+          <Card title="Download Reports" variant="borderless" hoverable>
             Save and download summaries and reports in PDF format.
           </Card>
         </Col>

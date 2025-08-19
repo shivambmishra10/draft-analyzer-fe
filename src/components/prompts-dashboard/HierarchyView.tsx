@@ -1,4 +1,3 @@
-// HierarchyView.tsx
 import React, { useEffect, useState } from "react";
 import { Collapse, message, Spin } from "antd";
 import Title from "antd/es/typography/Title";
@@ -63,7 +62,6 @@ const HierarchyView: React.FC = () => {
           accordion
           activeKey={activeDocKey ?? undefined}
           onChange={handleDocPanelChange}
-          bordered={false}
           items={documentTypes.map((doc) =>
             DocumentPanel({
               doc,

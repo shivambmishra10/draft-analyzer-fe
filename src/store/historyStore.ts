@@ -1,20 +1,14 @@
+import { DocumentHistory } from '@/model/HistoryModel';
 import { create } from 'zustand';
 
-export interface HistoryDocument {
-  id: number;
-  fileName: string;
-  uploadDateTime: string;
-  status: string;
-  type: string;
-}
 
 interface HistoryStore {
-  documents: HistoryDocument[];
-  selectedDocument: HistoryDocument | null;
+  documents: DocumentHistory[];
+  selectedDocument: DocumentHistory | null;
   isModalVisible: boolean;
-  setDocuments: (documents: HistoryDocument[]) => void;
-  addDocument: (document: HistoryDocument) => void;
-  setSelectedDocument: (document: HistoryDocument | null) => void;
+  setDocuments: (documents: DocumentHistory[]) => void;
+  addDocument: (document: DocumentHistory) => void;
+  setSelectedDocument: (document: DocumentHistory | null) => void;
   setModalVisible: (visible: boolean) => void;
 }
 
