@@ -89,6 +89,11 @@ npm install
 node document-mock-server.js
 ```
 
+## 📦 Environment Variables
+
+`.env` file in the root with:
+```
+VITE_BASE_URL="http://localhost:9000" #local mock express server
 # Server runs at http://localhost:9000
 
 Make sure your `.env` or API base URL points to `http://localhost:9000` when testing with the mock server.
@@ -105,11 +110,7 @@ npm run lint       # Run ESLint
 ```
 ---
 
-## 📦 Environment Variables
 
-`.env` file in the root with:
-```
-VITE_BASE_URL="http://localhost:9000" #local mock express server
 #VITE_BASE_URL="http://localhost:8000/api" #Local python backend sevice
 ```
 ---
