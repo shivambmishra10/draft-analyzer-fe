@@ -1,11 +1,11 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { List, Card, Typography, Space, Spin, Alert, Empty, Button, Tag, message } from 'antd';
-import { FileTextOutlined, CalendarOutlined, EyeOutlined, DownloadOutlined } from '@ant-design/icons';
+import { List, Card, Typography, Space, Spin, Alert, Empty, Button, Tag, message, Popconfirm } from 'antd';
+import { FileTextOutlined, CalendarOutlined, EyeOutlined, DownloadOutlined, DeleteOutlined } from '@ant-design/icons';
 
 import AnalysisModal from './AnalysisModal';
 import { useAuthStore } from '@/store/authStore';
 import { DocumentHistory } from '@/model/HistoryModel';
-import { getUserHistory } from '@/services/HistoryService';
+import { getUserHistory, deleteUserHistory } from '@/services/HistoryService';
 
 import { downloadSummaryReport } from '@/services/documentService';
 import { formatDateTime, getStatusColor } from '@/utils/documentUtils';
@@ -31,6 +31,17 @@ const AnalysisHistory: React.FC = () => {
     status: item.status,
     doc_type: item.doc_type,
   }), []);
+
+  const handleDelete = useCallback(async (item: DocumentHistory, event?: React.MouseEvent) => {
+      event?.stopPropagation();
+      try {
+        await deleteUserHistory(item.doc_summary_id);
+        setDocuments((prevDocs) => prevDocs.filter(doc => doc.doc_summary_id !== item.doc_summary_id));
+        message.success('History item deleted successfully');
+      } catch (error) {
+        message.error('Failed to delete history item');
+      }
+    }, []);
 
   const fetchHistory = useCallback(async () => {
     if (!user?.id) {
@@ -107,11 +118,7 @@ const AnalysisHistory: React.FC = () => {
               
               <div className="flex-1 min-w-0">
                 <div className="flex items-center space-x-3 mb-2">
-                  <Text 
-                    strong 
-                    className="text-lg text-gray-900 truncate"
-                    title={item.file_name}
-                  >
+                  <Text strong className="text-lg text-gray-900 truncate" title={item.file_name}>
                     {item.file_name}
                   </Text>                  
                 </div>
@@ -153,6 +160,25 @@ const AnalysisHistory: React.FC = () => {
               >
                 Download
               </Button>
+
+              <Popconfirm
+                title="Are you sure you want to delete this history?"
+                description="You won't be able to download this file again and all summarised data will be removed."
+                okText="Yes, delete"
+                cancelText="Cancel"
+                okButtonProps={{ danger: true }}
+                onConfirm={(e) => handleDelete(item, e)}
+              >
+                <Button
+                  type="text"
+                  danger
+                  icon={<DeleteOutlined />}
+                  title="Delete history item"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  Delete
+                </Button>
+              </Popconfirm>
               
               <div className="w-8 h-8 bg-gray-50 hover:bg-gray-100 rounded-full flex items-center justify-center transition-colors">
                 <EyeOutlined className="text-gray-400 text-sm" />
@@ -162,7 +188,7 @@ const AnalysisHistory: React.FC = () => {
         </Card>
       </List.Item>
     );
-  }, [handleDocumentClick, handleDownload, downloadingId, transformToHistoryDocument]);
+  }, [handleDocumentClick, handleDownload, handleDelete, downloadingId, transformToHistoryDocument]);
 
   if (loading) {
     return (
