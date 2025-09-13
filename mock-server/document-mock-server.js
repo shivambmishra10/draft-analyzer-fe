@@ -424,6 +424,10 @@ app.get("/summary/:doc_summary_id/assessment/:assessment_id", (req, res) => {
   }, random_delay);
 });
 
+app.delete('/history/doc_summary/:doc_summary_id', (req, res) => {
+  res.status(200).json({ message: 'History entry deleted successfully' });
+});
+
 app.get('/history/:user_id', (req, res) => {
   const { user_id } = req.params;
 
