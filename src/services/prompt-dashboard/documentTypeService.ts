@@ -4,12 +4,12 @@ import axios from 'axios';
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 
 export const getDocumentTypes = async (): Promise<DocumentType[]> => {
-  const response = await axios.get(`${BASE_URL}/document_types`);
+  const response = await axios.get(`${BASE_URL}/document_types/`);
   return response.data;
 };
 
 export const createDocumentType = async (doc: DocumentType): Promise<DocumentType> => {
-  const response = await axios.post<DocumentType>(`${BASE_URL}/document_types`, doc);
+  const response = await axios.post<DocumentType>(`${BASE_URL}/document_types/`, doc);
   return response.data;
 };
 
