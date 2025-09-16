@@ -4,12 +4,12 @@ import { AssessmentArea } from '@/model/AssessmentAreaModel';
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 
 export const getAssessmentAreas = async (): Promise<AssessmentArea[]> => {
-  const response = await axios.get<AssessmentArea[]>(`${BASE_URL}/assessment_areas`);
+  const response = await axios.get<AssessmentArea[]>(`${BASE_URL}/assessment_areas/`);
   return response.data;
 };
 
 export const createAssessmentArea = async (area: Partial<AssessmentArea>): Promise<AssessmentArea> => {
-  const response = await axios.post<AssessmentArea>(`${BASE_URL}/assessment_areas`, area);
+  const response = await axios.post<AssessmentArea>(`${BASE_URL}/assessment_areas/`, area);
   return response.data;
 };
 

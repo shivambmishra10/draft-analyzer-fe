@@ -35,7 +35,7 @@ export const summarizeDocument = async (doc_summary_id: number): Promise<Summary
 
 
 export const getDocumentTypes = async (): Promise<DocumentType[]> => {
-  const response = await axios.get<DocumentType[]>(`${BASE_URL}/document_types`);
+  const response = await axios.get<DocumentType[]>(`${BASE_URL}/document_types/`);
   return response.data;
 };
 
