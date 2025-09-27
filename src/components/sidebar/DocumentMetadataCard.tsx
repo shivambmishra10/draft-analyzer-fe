@@ -16,6 +16,14 @@ const DocumentMetadataCard: React.FC<{ document: UploadResponse }> = ({
 }) => {
 
   const updateStepStatus = useProgressTrackerStore((state) => state.updateStepStatus);
+
+  const executiveSummaryStatus = useProgressTrackerStore(
+    (state) =>
+      state.steps.find(
+        (step) => step.key === ProgressStepKey.ExecutiveSummary
+      )?.status
+  );
+
   const handleSummaryDownload = async () => {
     const doc_summary_id = useDocumentSummaryStore.getState().summary?.doc_summary_id;
     if (!doc_summary_id) {
@@ -33,6 +41,9 @@ const DocumentMetadataCard: React.FC<{ document: UploadResponse }> = ({
       updateStepStatus(ProgressStepKey.Download, ProgressStepStatus.Error);
     }
   };
+
+  const isDownloadEnabled =
+    executiveSummaryStatus === ProgressStepStatus.Completed;
 
   return (
     <Card
@@ -67,8 +78,14 @@ const DocumentMetadataCard: React.FC<{ document: UploadResponse }> = ({
           </div>
         </Descriptions.Item>
       </Descriptions>{" "}
+      
       <div className="flex items-center justify-center mt-4">
-        <Button type="primary" ghost onClick={handleSummaryDownload}>
+        <Button
+          type="primary"
+          ghost
+          onClick={handleSummaryDownload}
+          disabled={!isDownloadEnabled}
+        >
           Download Summary Report
         </Button>
       </div>

@@ -16,6 +16,11 @@ const AnalysisHistory: React.FC = () => {
   const [documents, setDocuments] = useState<DocumentHistory[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
+
+  const [page, setPage] = useState<number>(1);
+  const [pageSize, setPageSize] = useState<number>(10);
+  const [total, setTotal] = useState<number>(0);
+
   const [modalVisible, setModalVisible] = useState<boolean>(false);
   const [selectedDocument, setSelectedDocument] = useState<DocumentHistory | null>(null);
   const [downloadingId, setDownloadingId] = useState<number | null>(null);
@@ -53,8 +58,9 @@ const AnalysisHistory: React.FC = () => {
     setError('');
     
     try {
-      const response = await getUserHistory(user.id);
+      const response = await getUserHistory(user.id, page, pageSize);
       setDocuments(response.history || []);
+      setTotal(response.total);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to load document history';
       setError(errorMessage);
@@ -62,7 +68,7 @@ const AnalysisHistory: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  }, [user?.id]);
+  }, [user?.id, page, pageSize]);
 
   useEffect(() => {
     fetchHistory();
@@ -249,6 +255,17 @@ const AnalysisHistory: React.FC = () => {
           className="w-full"
           split={false}
           renderItem={renderDocumentItem}
+          pagination={{
+            current: page,
+            pageSize: pageSize,
+            total: total,
+            showSizeChanger: true,
+            showQuickJumper: true,
+            onChange: (newPage, newPageSize) => {
+              setPage(newPage);
+              setPageSize(newPageSize);
+            },
+          }}
         />
       )}
 

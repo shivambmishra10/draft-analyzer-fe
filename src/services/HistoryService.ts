@@ -3,8 +3,11 @@ import axios from "axios";
 
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 
-export const getUserHistory = async (user_id: string): Promise<HistoryResponse> => {
-  const response = await axios.get<HistoryResponse>(`${BASE_URL}/history/${user_id}`);
+export const getUserHistory = async ( user_id: string, page: number, pageSize: number): Promise<HistoryResponse> => {
+  const response = await axios.get<HistoryResponse>(
+    `${BASE_URL}/history/${user_id}`,
+    { params: { page, page_size: pageSize } }
+  );
   return response.data;
 };
 

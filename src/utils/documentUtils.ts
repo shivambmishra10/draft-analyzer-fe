@@ -1,7 +1,10 @@
 import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
+import timezone from 'dayjs/plugin/timezone';
 import relativeTime from 'dayjs/plugin/relativeTime';
 
-// Extend dayjs with relative time plugin
+dayjs.extend(utc);
+dayjs.extend(timezone);
 dayjs.extend(relativeTime);
 
 /**
@@ -11,7 +14,7 @@ dayjs.extend(relativeTime);
  */
 export const formatDateTime = (dateTimeString: string) => {
   try {
-    const date = dayjs(dateTimeString);
+    const date = dayjs.utc(dateTimeString).local();
     return {
       formatted: date.format('MMM DD, YYYY • h:mm A'),
       relative: date.fromNow(),

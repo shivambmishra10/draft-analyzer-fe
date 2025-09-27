@@ -430,54 +430,71 @@ app.delete('/history/doc_summary/:doc_summary_id', (req, res) => {
 
 app.get('/history/:user_id', (req, res) => {
   const { user_id } = req.params;
+  const { page = 1, page_size = 10 } = req.query;
 
   if (!user_id) {
     return res.status(400).json({ error: 'Invalid user_id' });
   }
 
   const doc_summary_id = 1;
+  
+  const allHistory = [
+    {
+      doc_type_id: 1,
+      doc_summary_id: doc_summary_id,
+      file_name: "document_analysis_report.pdf",
+      summary_time: "2025-08-17T07:30:00.000Z",
+      status: "uploaded",
+      doc_type: "Consultation"
+    },
+    {
+      doc_type_id: 1,
+      doc_summary_id: doc_summary_id + 1,
+      file_name: "Electronic_Toys_Policy.pdf",
+      summary_time: "2025-08-16T14:22:30.000Z",
+      status: "summarized",
+      doc_type: "Amendment"
+    },
+    {
+      doc_type_id: 1,
+      doc_summary_id: doc_summary_id + 2,
+      file_name: "maharashtra_export_policy.pdf",
+      summary_time: "2025-08-15T09:45:15.000Z",
+      status: "validated",
+      doc_type: "Law Order"
+    },
+    {
+      doc_type_id: 1,
+      doc_summary_id: doc_summary_id + 3,
+      file_name: "Odisha State Data Policy.pdf",
+      summary_time: "2025-08-14T16:18:45.000Z",
+      status: "downloaded",
+      doc_type: "Consultation"
+    }
+  ];
+
+  // Pagination logic
+  const pageInt = parseInt(page, 10);
+  const pageSizeInt = parseInt(page_size, 10);
+  const total = allHistory.length;
+
+  const startIndex = (pageInt - 1) * pageSizeInt;
+  const endIndex = startIndex + pageSizeInt;
+
+  const paginatedHistory = allHistory.slice(startIndex, endIndex);
 
   const mockHistoryResponse = {
-    history: [
-      {
-        doc_type_id: 1,
-        doc_summary_id: doc_summary_id,
-        file_name: "document_analysis_report.pdf",
-        summary_time: "2025-08-17T07:30:00.000Z",
-        status: "uploaded",
-        doc_type: "Consultation"
-      },
-      {
-        doc_type_id: 1,
-        doc_summary_id: doc_summary_id + 1,
-        file_name: "Electronic_Toys_Policy.pdf",
-        summary_time: "2025-08-16T14:22:30.000Z",
-        status: "summarized",
-        doc_type: "Amendment"
-      },
-      {
-        doc_type_id: 1,
-        doc_summary_id: doc_summary_id + 2,
-        file_name: "maharashtra_export_policy.pdf",
-        summary_time: "2025-08-15T09:45:15.000Z",
-        status: "validated",
-        doc_type: "Law Order"
-      },
-      {
-        doc_type_id: 1,
-        doc_summary_id: doc_summary_id + 3,
-        file_name: "Odisha State Data Policy.pdf",
-        summary_time: "2025-08-14T16:18:45.000Z",
-        status: "downloaded",
-        doc_type: "Consultation"
-      }
-    ]
+    history: paginatedHistory,
+    total,
+    page: pageInt,
+    page_size: pageSizeInt
   };
-  
+
   setTimeout(() => {
     res.status(200).json(mockHistoryResponse);
   }, 300);
 });
+
 
 
 app.listen(PORT, () => {
