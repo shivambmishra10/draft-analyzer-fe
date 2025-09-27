@@ -1,5 +1,8 @@
 export interface HistoryResponse {
-    history: DocumentHistory[];
+  history: DocumentHistory[];
+  total: number;
+  page: number;
+  page_size: number;
 }
 
 export interface DocumentHistory {

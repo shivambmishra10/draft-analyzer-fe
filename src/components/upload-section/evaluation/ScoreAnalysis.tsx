@@ -92,7 +92,7 @@ const ScoreAnalysis: React.FC = () => {
       }
 
       try {
-        updateStepStatus(ProgressStepKey.ExecutiveSummary, ProgressStepStatus.Pending);
+        updateStepStatus(ProgressStepKey.ExecutiveSummary, ProgressStepStatus.InProgress);
         const executiveSummary = await generateExecutativeSummary(doc_summary_id);
         if (executiveSummary) {
           message.success("Executive summary generated.");
