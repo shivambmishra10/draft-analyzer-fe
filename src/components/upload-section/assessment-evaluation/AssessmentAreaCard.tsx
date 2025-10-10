@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { Spin, Space, Card, Typography, Tag, message } from "antd";
 import { useAssessmentEvaluationStore } from "@/store/assessmentEvaluationStore";
 import { useAssessmentAreaStore } from "@/store/assessmentAreaStore";
+import { useProgressTrackerStore } from "@/store/progressTrackerStore";
 import { AssessmentAreaEvaluation } from "@/model/DocumentModels";
 import { getScoreTagColor } from "@/utils/documentUtils";
 
@@ -11,6 +12,8 @@ interface Props {
   doc_summary_id: number;
   assessment_id: number;
 }
+
+const lastEvalRef = React.useRef<{doc_summary_id: number, assessment_id: number} | null>(null);
 
 const AssessmentAreaCard: React.FC<Props> = ({ doc_summary_id, assessment_id }) => {
   const [loading, setLoading] = useState(false);
@@ -24,10 +27,11 @@ const AssessmentAreaCard: React.FC<Props> = ({ doc_summary_id, assessment_id }) 
   const setEvaluationError = useAssessmentEvaluationStore(
     (state) => state.setEvaluationError
   );
+  const setStepRetry = useProgressTrackerStore((state) => state.setStepRetry);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
-
+    lastEvalRef.current = { doc_summary_id, assessment_id };
     const assessmentArea = assessmentAreas.find(
       (area) => area.assessment_id === assessment_id
     );
@@ -39,8 +43,17 @@ const AssessmentAreaCard: React.FC<Props> = ({ doc_summary_id, assessment_id }) 
         assessment_id
       );
       setEvaluation(evalResponse);
+      setStepRetry("evaluate", undefined);
     } catch (err) {
       setEvaluationError(assessment_id, err);
+      setStepRetry("evaluate", async () => {
+        if (lastEvalRef.current) {
+          await fetchAndSetAssessmentEvaluation(
+            lastEvalRef.current.doc_summary_id,
+            lastEvalRef.current.assessment_id
+          );
+        }
+      });
       message.error(`Failed to fetch evaluation for assessment ${assessment_id}`);
     } finally {
       setLoading(false);
@@ -51,6 +64,7 @@ const AssessmentAreaCard: React.FC<Props> = ({ doc_summary_id, assessment_id }) 
     doc_summary_id,
     fetchAndSetAssessmentEvaluation,
     setEvaluationError,
+    setStepRetry,
   ]);
 
   useEffect(() => {

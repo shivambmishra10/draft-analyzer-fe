@@ -2,8 +2,9 @@ import {
   useProgressTrackerStore,
 } from "@/store/progressTrackerStore";
 import { Card } from "antd";
-import { CheckCircle2, Loader2, XCircle } from "lucide-react";
+import { CheckCircle2, Loader2, XCircle, RotateCcw } from "lucide-react";
 import { ProgressStepStatus } from "../../constants/ProgressStatus";
+import { useState } from "react";
 
 const statusDot = (status: ProgressStepStatus) => {
   switch (status) {
@@ -22,7 +23,22 @@ const statusDot = (status: ProgressStepStatus) => {
 };
 
 const ProgressTracker = () => {
-  const { steps } = useProgressTrackerStore();
+  const { steps, updateStepStatus } = useProgressTrackerStore();
+  const [retryingIndex, setRetryingIndex] = useState<number | null>(null);
+
+  const handleRetry = async (step: any, index: number) => {
+    if (!step.retry) return;
+    setRetryingIndex(index);
+    updateStepStatus(step.key, ProgressStepStatus.InProgress);
+    try {
+      await step.retry();
+      updateStepStatus(step.key, ProgressStepStatus.Completed);
+    } catch (e) {
+      updateStepStatus(step.key, ProgressStepStatus.Error);
+    } finally {
+      setRetryingIndex(null);
+    }
+  };
 
   return (
     <Card
@@ -61,6 +77,15 @@ const ProgressTracker = () => {
               >
                 <Icon className="w-5 h-5 ml-2" />
                 <span className="text-sm">{step.label}</span>
+                {step.status === "error" && step.retry && (
+                  <span
+                    className="ml-2 cursor-pointer"
+                    title="Retry"
+                    onClick={() => handleRetry(step, index)}
+                  >
+                    <RotateCcw className={`w-5 h-5 ${retryingIndex === index ? 'animate-spin' : ''}`} />
+                  </span>
+                )}
               </div>
             </div>
           );

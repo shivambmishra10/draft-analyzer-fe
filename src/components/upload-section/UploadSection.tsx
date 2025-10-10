@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import {
   Upload,
   Typography,
@@ -34,6 +34,8 @@ export default function UploadSection() {
   const [showValidationWarning, setShowValidationWarning] = useState(false);
   const [validationResponse, setValidationResponse] = useState<DocumentSummary | null>(null);
   const [proceedClicked, setProceedClicked] = useState(false);
+  const lastFileRef = useRef<File | null>(null); // Store last file for retry
+  const lastDocTypeIdRef = useRef<number | null>(null); // Store last docTypeId for validation retry
 
   const setSummaryRequested = useDocumentStore(state => state.setSummaryRequested);
   const setUploadResponse = useDocumentStore(state => state.setUploadResponse);
@@ -59,6 +61,7 @@ export default function UploadSection() {
   };
 
   const handleUpload = async (file: File) => {
+    lastFileRef.current = file; // Always update last file
     setIsUploading(true);
     resetUploadState();
     useProgressTrackerStore.getState().updateStepStatus(ProgressStepKey.Upload, ProgressStepStatus.InProgress);
@@ -72,11 +75,16 @@ export default function UploadSection() {
       message.success("File uploaded successfully");
       setUploadResponse(res);
       useProgressTrackerStore.getState().updateStepStatus(ProgressStepKey.Upload, ProgressStepStatus.Completed);
-
+      useProgressTrackerStore.getState().setStepRetry(ProgressStepKey.Upload, undefined);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : "Upload failed";
       setError(errorMessage);
       useProgressTrackerStore.getState().updateStepStatus(ProgressStepKey.Upload, ProgressStepStatus.Error);
+      useProgressTrackerStore.getState().setStepRetry(ProgressStepKey.Upload, async () => {
+        if (lastFileRef.current) {
+          await handleUpload(lastFileRef.current);
+        }
+      });
       message.error(errorMessage);
     } finally {
       setIsUploading(false);
@@ -84,6 +92,7 @@ export default function UploadSection() {
   };
 
   const validateDocument = async (docTypeId: number) => {
+    lastDocTypeIdRef.current = docTypeId; // Always update last docTypeId
     try {
       setIsDocTypeDisabled(true);
       useProgressTrackerStore.getState().updateStepStatus(ProgressStepKey.DocumentValidation, ProgressStepStatus.InProgress);
@@ -91,6 +100,7 @@ export default function UploadSection() {
 
       setValidationResponse(summary);
       useProgressTrackerStore.getState().updateStepStatus(ProgressStepKey.DocumentValidation, ProgressStepStatus.Completed);
+      useProgressTrackerStore.getState().setStepRetry(ProgressStepKey.DocumentValidation, undefined);
       if (!summary?.is_valid_document) {
         setShowValidationWarning(true);
       } else {
@@ -100,6 +110,11 @@ export default function UploadSection() {
       message.error("Validation failed. Please try again.");
       setIsDocTypeDisabled(false);
       useProgressTrackerStore.getState().updateStepStatus(ProgressStepKey.DocumentValidation, ProgressStepStatus.Error);
+      useProgressTrackerStore.getState().setStepRetry(ProgressStepKey.DocumentValidation, async () => {
+        if (lastDocTypeIdRef.current !== null) {
+          await validateDocument(lastDocTypeIdRef.current);
+        }
+      });
     } 
   };
 

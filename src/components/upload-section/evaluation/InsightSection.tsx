@@ -22,36 +22,59 @@ const InsightSection: React.FC = () => {
   const [summaryData, setSummaryData] = useState<SummaryResponse | null>(null);
   const summaryRef = useRef<HTMLDivElement>(null);
   const updateStepStatus = useProgressTrackerStore((state) => state.updateStepStatus);
+  const setStepRetry = useProgressTrackerStore((state) => state.setStepRetry);
   const fetchAndSetSummaryText = useDocumentSummaryStore((state) => state.fetchAndSetSummaryText);
 
-  
   const summaryRequested = useDocumentStore((state) => state.summaryRequested);
   const summary = useDocumentSummaryStore((state) => state.summary);
 
+  // Store last doc_summary_id for retry
+  const lastDocSummaryIdRef = useRef<number | null>(null);
+
+  // Retry handler for Summarize step
+  const retrySummarize = async () => {
+    if (!lastDocSummaryIdRef.current) return;
+    setStepRetry(ProgressStepKey.Summarize, () => {}); // Clear retry before retrying
+    setLoading(true);
+    updateStepStatus(ProgressStepKey.Summarize, ProgressStepStatus.InProgress);
+    try {
+      const response = await fetchAndSetSummaryText(lastDocSummaryIdRef.current);
+      setSummaryData(response);
+      updateStepStatus(ProgressStepKey.Summarize, ProgressStepStatus.Completed);
+      setStepRetry(ProgressStepKey.Summarize, () => {}); // Clear retry on success
+    } catch {
+      message.error("Failed to fetch summary.");
+      updateStepStatus(ProgressStepKey.Summarize, ProgressStepStatus.Error);
+      setStepRetry(ProgressStepKey.Summarize, retrySummarize); // Set retry on error
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     const getSummary = async () => {
-
       if (!summaryRequested || !summary?.doc_summary_id) {
         return;
       }
-
+      lastDocSummaryIdRef.current = summary.doc_summary_id;
       setLoading(true);
       updateStepStatus(ProgressStepKey.Summarize, ProgressStepStatus.InProgress);
+      setStepRetry(ProgressStepKey.Summarize, () => {});
       try {
-        console.log("Fetching summary for doc_summary_id:", summary.doc_summary_id);
         const response = await fetchAndSetSummaryText(summary.doc_summary_id);
         setSummaryData(response);
         updateStepStatus(ProgressStepKey.Summarize, ProgressStepStatus.Completed);
-
-      } catch (err) {
-        console.error("Failed to fetch summary:", err);
+        setStepRetry(ProgressStepKey.Summarize, () => {});
+      } catch {
         message.error("Failed to fetch summary.");
+        updateStepStatus(ProgressStepKey.Summarize, ProgressStepStatus.Error);
+        setStepRetry(ProgressStepKey.Summarize, retrySummarize);
       } finally {
         setLoading(false);
       }
     };
-
     getSummary();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [summaryRequested, summary?.doc_summary_id, fetchAndSetSummaryText]);
 
   return (
@@ -70,7 +93,6 @@ const InsightSection: React.FC = () => {
         >
           Summary of your uploaded policy document
         </Paragraph>
-
         {loading ? (
           <div className="flex justify-center py-8">
             <Spin tip="Loading summary..." size="large" />
@@ -81,7 +103,6 @@ const InsightSection: React.FC = () => {
               <FileTextOutlined style={{ marginRight: 8 }} />
               Document Summary
             </Title>
-
             <Card
               size="small"
               style={{

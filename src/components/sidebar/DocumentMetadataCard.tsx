@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef } from "react";
 import { Button, Card, Descriptions, message } from "antd";
 import { UploadResponse } from "@/model/DocumentModels";
 import { downloadSummaryReport } from "@/services/documentService";
@@ -14,9 +14,8 @@ const formatFileSize = (sizeKb: number) => {
 const DocumentMetadataCard: React.FC<{ document: UploadResponse }> = ({
   document,
 }) => {
-
   const updateStepStatus = useProgressTrackerStore((state) => state.updateStepStatus);
-
+  const setStepRetry = useProgressTrackerStore((state) => state.setStepRetry);
   const executiveSummaryStatus = useProgressTrackerStore(
     (state) =>
       state.steps.find(
@@ -24,21 +23,44 @@ const DocumentMetadataCard: React.FC<{ document: UploadResponse }> = ({
       )?.status
   );
 
+  // Store last doc_summary_id for retry
+  const lastDocSummaryIdRef = useRef<number | null>(null);
+
+  // Retry handler for Download step
+  const retryDownload = async () => {
+    if (!lastDocSummaryIdRef.current) return;
+    setStepRetry(ProgressStepKey.Download, () => {}); // Clear retry before retrying
+    updateStepStatus(ProgressStepKey.Download, ProgressStepStatus.InProgress);
+    try {
+      await downloadSummaryReport(lastDocSummaryIdRef.current);
+      message.success('Summary report downloaded successfully');
+      updateStepStatus(ProgressStepKey.Download, ProgressStepStatus.Completed);
+      setStepRetry(ProgressStepKey.Download, () => {}); // Clear retry on success
+    } catch {
+      message.error('Download failed');
+      updateStepStatus(ProgressStepKey.Download, ProgressStepStatus.Error);
+      setStepRetry(ProgressStepKey.Download, retryDownload); // Set retry on error
+    }
+  };
+
   const handleSummaryDownload = async () => {
     const doc_summary_id = useDocumentSummaryStore.getState().summary?.doc_summary_id;
     if (!doc_summary_id) {
       message.error('No summary available for download');
       return;
     }
-    
+    lastDocSummaryIdRef.current = doc_summary_id;
+    setStepRetry(ProgressStepKey.Download, () => {});
+    updateStepStatus(ProgressStepKey.Download, ProgressStepStatus.InProgress);
     try {
-      updateStepStatus(ProgressStepKey.Download, ProgressStepStatus.InProgress);
       await downloadSummaryReport(doc_summary_id);
       message.success('Summary report downloaded successfully');
       updateStepStatus(ProgressStepKey.Download, ProgressStepStatus.Completed);
-    } catch (error) {
+      setStepRetry(ProgressStepKey.Download, () => {});
+    } catch {
       message.error('Download failed');
       updateStepStatus(ProgressStepKey.Download, ProgressStepStatus.Error);
+      setStepRetry(ProgressStepKey.Download, retryDownload);
     }
   };
 

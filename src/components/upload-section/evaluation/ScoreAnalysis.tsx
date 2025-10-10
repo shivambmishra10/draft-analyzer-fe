@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState, useRef } from "react";
 import { Card, Spin, message, Progress, Row, Col } from "antd";
 import {
   PieChart,
@@ -25,6 +25,7 @@ import { useAssessmentEvaluationStore } from "@/store/assessmentEvaluationStore"
 import { useDocumentTypeStore } from "@/store/documentStore";
 import Title from "antd/es/typography/Title";
 import Paragraph from "antd/es/typography/Paragraph";
+import { AssessmentAreaEvaluation } from "@/model/DocumentModels";
 
 const pieColors = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#A9A9F5"];
 
@@ -33,16 +34,18 @@ const ScoreAnalysis: React.FC = () => {
   const [data, setData] = useState<ScoreAnalysisResponse[] | null>(null);
 
   const updateStepStatus = useProgressTrackerStore((state) => state.updateStepStatus);
+  const setStepRetry = useProgressTrackerStore((state) => state.setStepRetry);
   const { doc_summary_id = null, doc_type_id = null } =
     useDocumentSummaryStore((state) => state.summary ?? {
       doc_summary_id: null,
       doc_type_id: null,
     });
 
+  // Store last doc_summary_id for retry
+  const lastDocSummaryIdRef = useRef<number | null>(null);
+
   const { evaluations } = useAssessmentEvaluationStore();
-
   const documentTypes = useDocumentTypeStore((state) => state.documentTypes);
-
   const documentType = useMemo(
     () =>
       doc_type_id
@@ -52,20 +55,16 @@ const ScoreAnalysis: React.FC = () => {
   );
 
   const isEvaluationComplete =
-  !!documentType?.assessment_ids?.length &&
-  documentType.assessment_ids.every(
-    (id) =>
-      evaluations &&
-      (
-        (evaluations as Record<number, any>)[id] !== undefined
-      )
-  );
-
+    !!documentType?.assessment_ids?.length &&
+    documentType.assessment_ids.every(
+      (id) =>
+        evaluations &&
+        ((evaluations as Record<number, AssessmentAreaEvaluation | undefined>)[id] !== undefined)
+    );
 
   // Track evaluation progress status
   useEffect(() => {
     if (!documentType?.assessment_ids?.length) return;
-
     if (isEvaluationComplete) {
       updateStepStatus(ProgressStepKey.Evaluate, ProgressStepStatus.Completed);
     } else {
@@ -73,39 +72,75 @@ const ScoreAnalysis: React.FC = () => {
     }
   }, [isEvaluationComplete, documentType?.assessment_ids, updateStepStatus]);
 
+  // Retry handler for Score Analysis
+  const retryScoreAnalysis = async () => {
+    if (!lastDocSummaryIdRef.current) return;
+    setStepRetry(ProgressStepKey.Score, () => {}); // Clear retry before retrying
+    setStepRetry(ProgressStepKey.ExecutiveSummary, () => {});
+    setLoading(true);
+    updateStepStatus(ProgressStepKey.Score, ProgressStepStatus.InProgress);
+    try {
+      const response = await fetchScoreAnalysis(lastDocSummaryIdRef.current);
+      setData(response);
+      updateStepStatus(ProgressStepKey.Score, ProgressStepStatus.Completed);
+      setStepRetry(ProgressStepKey.Score, () => {}); // Clear retry on success
+    } catch {
+      message.error("Failed to fetch score analysis.");
+      updateStepStatus(ProgressStepKey.Score, ProgressStepStatus.Error);
+      setStepRetry(ProgressStepKey.Score, retryScoreAnalysis); // Set retry on error
+      return;
+    } finally {
+      setLoading(false);
+    }
+    // After Score Analysis, try Executive Summary
+    await retryExecutiveSummary();
+  };
+
+  // Retry handler for Executive Summary
+  const retryExecutiveSummary = async () => {
+    if (!lastDocSummaryIdRef.current) return;
+    setStepRetry(ProgressStepKey.ExecutiveSummary, () => {});
+    updateStepStatus(ProgressStepKey.ExecutiveSummary, ProgressStepStatus.InProgress);
+    try {
+      const executiveSummary = await generateExecutativeSummary(lastDocSummaryIdRef.current);
+      if (executiveSummary) {
+        message.success("Executive summary generated.");
+        updateStepStatus(ProgressStepKey.ExecutiveSummary, ProgressStepStatus.Completed);
+        setStepRetry(ProgressStepKey.ExecutiveSummary, () => {});
+      }
+    } catch {
+      message.error("Failed to generate executive summary.");
+      updateStepStatus(ProgressStepKey.ExecutiveSummary, ProgressStepStatus.Error);
+      setStepRetry(ProgressStepKey.ExecutiveSummary, retryExecutiveSummary);
+    }
+  };
+
   // Don’t even try loading scores until evaluation complete
   useEffect(() => {
     if (!doc_summary_id || !isEvaluationComplete) return;
-
+    lastDocSummaryIdRef.current = doc_summary_id;
     const loadData = async () => {
       setLoading(true);
       updateStepStatus(ProgressStepKey.Score, ProgressStepStatus.InProgress);
+      setStepRetry(ProgressStepKey.Score, () => {});
+      setStepRetry(ProgressStepKey.ExecutiveSummary, () => {});
       try {
         const response = await fetchScoreAnalysis(doc_summary_id);
         setData(response);
         updateStepStatus(ProgressStepKey.Score, ProgressStepStatus.Completed);
-      } catch (err) {
+        setStepRetry(ProgressStepKey.Score, () => {});
+      } catch {
         message.error("Failed to fetch score analysis.");
         updateStepStatus(ProgressStepKey.Score, ProgressStepStatus.Error);
-      } finally {
+        setStepRetry(ProgressStepKey.Score, retryScoreAnalysis);
         setLoading(false);
+        return;
       }
-
-      try {
-        updateStepStatus(ProgressStepKey.ExecutiveSummary, ProgressStepStatus.InProgress);
-        const executiveSummary = await generateExecutativeSummary(doc_summary_id);
-        if (executiveSummary) {
-          message.success("Executive summary generated.");
-          updateStepStatus(ProgressStepKey.ExecutiveSummary, ProgressStepStatus.Completed);
-        }
-      } catch (error) {
-        message.error("Failed to generate executive summary.");
-        updateStepStatus(ProgressStepKey.ExecutiveSummary, ProgressStepStatus.Error);
-      }
-      
+      setLoading(false);
+      await retryExecutiveSummary();
     };
-
     loadData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [doc_summary_id, isEvaluationComplete, updateStepStatus]);
 
   if (!isEvaluationComplete) {

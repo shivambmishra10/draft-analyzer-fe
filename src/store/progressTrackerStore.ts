@@ -16,11 +16,13 @@ export interface Step {
   label: string;
   icon: React.ElementType;
   status: ProgressStepStatus;
+  retry?: () => Promise<void> | void; // Optional retry handler
 }
 
 interface ProgressTrackerState {
   steps: Step[];
   updateStepStatus: (key: ProgressStepKey, status: ProgressStepStatus) => void;
+  setStepRetry: (key: ProgressStepKey, retry: () => Promise<void> | void) => void;
   resetSteps: () => void;
 }
 
@@ -38,6 +40,12 @@ export const useProgressTrackerStore = create<ProgressTrackerState>((set) => ({
     set((state) => ({
       steps: state.steps.map((step) =>
         step.key === key ? { ...step, status } : step
+      ),
+    })),
+  setStepRetry: (key, retry) =>
+    set((state) => ({
+      steps: state.steps.map((step) =>
+        step.key === key ? { ...step, retry } : step
       ),
     })),
   resetSteps: () =>
